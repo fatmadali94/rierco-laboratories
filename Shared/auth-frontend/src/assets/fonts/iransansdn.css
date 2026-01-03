@@ -1,0 +1,20 @@
+@font-face {
+  font-family: "iransansdn";
+  font-style: normal;
+  font-weight: 700;
+  src: url("./iransansdnbold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "iransansdn";
+  font-style: normal;
+  font-weight: 300;
+  src: url("./iransansdnlight.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "iransansdn";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./iransansdn.woff2") format("woff2");
+}

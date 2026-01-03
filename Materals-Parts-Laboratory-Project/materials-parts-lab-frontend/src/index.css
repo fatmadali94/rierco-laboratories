@@ -1,0 +1,362 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.table-auto {
+  border-spacing: 0 15px;
+}
+
+.table-auto tr td:nth-child(1),
+.table-auto tr th:nth-child(1) {
+  border-radius: 0.625rem 0 0 0.625rem;
+}
+
+.table-auto tr td:nth-child(n + 5),
+.table-auto tr th:nth-child(n + 5) {
+  border-radius: 0 0.625rem 0.625rem 0;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  height: 12px;
+}
+/* Tailwind-compatible overrides in src/index.css */
+.scroll-top {
+  transform: rotateX(180deg);
+}
+.scroll-top table {
+  transform: rotateX(180deg);
+}
+
+/* Scrollbar styling */
+.custom-scrollbar {
+  scrollbar-color: #5271ff transparent;
+  scrollbar-width: 12px;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  height: 12px;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #5271ff;
+  border-radius: 8px;
+}
+
+/* Custom Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+.scrollbar-thumb-gray-700::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+.scrollbar-track-gray-900::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+.scrollbar-track-gray-800::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+@keyframes neon-pulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #5271ff,
+      0 0 82px #5271ff,
+      0 0 92px #5271ff,
+      0 0 102px #5271ff,
+      0 0 151px #5271ff;
+  }
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 7px #fff,
+      0 0 18px #fff,
+      0 0 38px #5271ff,
+      0 0 73px #5271ff,
+      0 0 80px #5271ff,
+      0 0 94px #5271ff,
+      0 0 140px #5271ff;
+  }
+}
+
+@keyframes neon-pulse-blue {
+  0%,
+  100% {
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #5271ff,
+      0 0 82px #5271ff,
+      0 0 92px #5271ff,
+      0 0 102px #5271ff,
+      0 0 151px #5271ff;
+  }
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 7px #fff,
+      0 0 18px #fff,
+      0 0 38px #5271ff,
+      0 0 73px #5271ff,
+      0 0 80px #5271ff,
+      0 0 94px #5271ff,
+      0 0 140px #5271ff;
+  }
+}
+
+@keyframes neon-pulse-purple {
+  0%,
+  100% {
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #a855f7,
+      0 0 82px #a855f7,
+      0 0 92px #a855f7,
+      0 0 102px #a855f7,
+      0 0 151px #a855f7;
+  }
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 7px #fff,
+      0 0 18px #fff,
+      0 0 38px #a855f7,
+      0 0 73px #a855f7,
+      0 0 80px #a855f7,
+      0 0 94px #a855f7,
+      0 0 140px #a855f7;
+  }
+}
+
+@keyframes neon-pulse-red {
+  0%,
+  100% {
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #ff4d4d,
+      0 0 82px #ff4d4d,
+      0 0 92px #ff4d4d,
+      0 0 102px #ff4d4d,
+      0 0 151px #ff4d4d;
+  }
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 7px #fff,
+      0 0 18px #fff,
+      0 0 38px #ff4d4d,
+      0 0 73px #ff4d4d,
+      0 0 80px #ff4d4d,
+      0 0 94px #ff4d4d,
+      0 0 140px #ff4d4d;
+  }
+}
+
+@keyframes neon-pulse-green {
+  0%,
+  100% {
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #00ffae,
+      0 0 82px #00ffae,
+      0 0 92px #00ffae,
+      0 0 102px #00ffae,
+      0 0 151px #00ffae;
+  }
+
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 7px #fff,
+      0 0 18px #fff,
+      0 0 38px #00ffae,
+      0 0 73px #00ffae,
+      0 0 80px #00ffae,
+      0 0 94px #00ffae,
+      0 0 140px #00ffae;
+  }
+}
+
+@keyframes neon-pulse-yellow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 7px #fff,
+      0 0 10px #fff,
+      0 0 21px #fff,
+      0 0 42px #facc15,
+      0 0 82px #facc15,
+      0 0 92px #facc15,
+      0 0 102px #facc15,
+      0 0 151px #facc15;
+  }
+
+  50% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 7px #fff,
+      0 0 18px #fff,
+      0 0 38px #facc15,
+      0 0 73px #facc15,
+      0 0 80px #facc15,
+      0 0 94px #facc15,
+      0 0 140px #facc15;
+  }
+}
+
+@keyframes hover-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes text-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+@keyframes terminal-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-neon-pulse-limited {
+  animation-name: neon-pulse;
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-neon-blue-limited {
+  animation-name: neon-pulse-blue;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-neon-red-limited {
+  animation-name: neon-pulse-red;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-neon-green-limited {
+  animation-name: neon-pulse-green;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-neon-purple-limited {
+  animation-name: neon-pulse-purple;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-neon-yellow-limited {
+  animation-name: neon-pulse-yellow;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-text-flicker-limited {
+  animation-name: text-flicker;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-hover-bounce-limited {
+  animation-name: hover-bounce;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+.animate-terminal-blink-limited {
+  animation-name: terminal-blink;
+  animation-duration: 1.5s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 4;
+  animation-fill-mode: forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-neon-pulse-limited,
+  .animate-neon-blue-limited,
+  .animate-neon-red-limited,
+  .animate-neon-green-limited,
+  .animate-neon-purple-limited,
+  .animate-neon-yellow-limited,
+  .animate-hover-bounce-limited,
+  .animate-text-flicker-limited,
+  .animate-terminal-blink-limited {
+    animation: none !important;
+  }
+}
+
+/* * {
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white" stroke="black" stroke-width="1"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>')
+      12 12,
+    auto !important;
+}
+
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+select,
+[onclick],
+.cursor-pointer {
+  cursor:
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="54" height="72" viewBox="0 0 24 32" fill="%23FFE4C4" stroke="black" stroke-width="1"><path d="M9 2c-.5 0-1 .5-1 1v8c0 .5-.5 1-1 1s-1-.5-1-1V8c0-.5-.5-1-1-1s-1 .5-1 1v3c0 .5-.5 1-1 1s-1-.5-1-1V9c0-.5-.5-1-1-1s-1 .5-1 1v7c0 3 2 5.5 4.5 6.5L8 30h8l1.5-7.5C20 21.5 22 19 22 16V5c0-.5-.5-1-1-1s-1 .5-1 1v6c0 .5-.5 1-1 1s-1-.5-1-1V4c0-.5-.5-1-1-1s-1 .5-1 1v7c0 .5-.5 1-1 1s-1-.5-1-1V3c0-.5-.5-1-1-1z"/></svg>')
+      27 9,
+    pointer !important;
+} */

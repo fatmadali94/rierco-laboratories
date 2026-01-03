@@ -1,0 +1,64 @@
+# Environment files (NEVER commit these)
+.env
+.env.dev
+.env.prod
+.env.local
+.env.development
+.env.production
+
+# But DO commit .env.example files
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database dumps (optional - don't commit production data)
+*.sql
+```
+
+### B. Add .gitignore to Frontend and Backend
+
+**tire-lab-frontend/.gitignore:**
+```
+# dependencies
+node_modules
+
+# production
+dist
+build
+
+# env files
+.env
+.env.local
+.env.development
+.env.production
+!.env.example
+
+# misc
+.DS_Store
+*.log
+```
+
+**tire-lab-backend/.gitignore:**
+```
+# dependencies
+node_modules
+
+# env files
+.env
+.env.local
+.env.development
+.env.production
+!.env.example
+
+# misc
+.DS_Store
+*.log
