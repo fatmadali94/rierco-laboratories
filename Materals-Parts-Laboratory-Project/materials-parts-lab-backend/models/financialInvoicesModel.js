@@ -96,7 +96,7 @@ export async function getAllInvoices(filters = {}) {
     LEFT JOIN orderers o ON i.orderer_id = o.id
     ${whereClause}
   `,
-    params
+    params,
   );
 
   const total = parseInt(countResult.rows[0].total);
@@ -131,7 +131,7 @@ export async function getAllInvoices(filters = {}) {
     ORDER BY i.invoice_date DESC, i.id DESC
     LIMIT $${paramCount} OFFSET $${paramCount + 1}
   `,
-    params
+    params,
   );
 
   return {
@@ -168,7 +168,7 @@ export async function getInvoiceById(invoiceId) {
     LEFT JOIN orderers o ON i.orderer_id = o.id
     WHERE i.id = $1
   `,
-    [invoiceId]
+    [invoiceId],
   );
 
   if (result.rows.length === 0) {
@@ -180,27 +180,35 @@ export async function getInvoiceById(invoiceId) {
   // Get invoice records with full details
   const recordsResult = await pool.query(
     `
-    SELECT 
-      ir.*,
-      r.record_number,
-      r.state as record_state,
-      s.sample_name,
-      t.title as test_title,
-      t.code as test_code,
-      st.code as standard_code,
-      tr.result_value,
-      tr.declaration_of_conformity
-    FROM invoice_records ir
-    JOIN records r ON ir.record_id = r.id
-    JOIN record_tests rt ON r.id = rt.record_id
-    JOIN tests t ON rt.test_id = t.id
-    LEFT JOIN standards st ON rt.standard_id = st.id
-    JOIN samples s ON r.sample_id = s.id
-    LEFT JOIN test_results tr ON r.id = tr.record_id
-    WHERE ir.invoice_id = $1
-    ORDER BY r.record_number
-  `,
-    [invoiceId]
+  SELECT 
+    ir.*,
+    r.record_number,
+    r.state as record_state,
+    s.sample_name,
+    rt.test_id,
+    rt.id as record_test_id,
+    t.title as test_title,
+    t.code as test_code,
+    st.title as standard_title,
+    tr.result_value,
+    tr.declaration_of_conformity
+  FROM invoice_records ir
+  JOIN records r ON ir.record_id = r.id
+  JOIN record_tests rt ON r.id = rt.record_id
+  JOIN tests t ON rt.test_id = t.id
+  LEFT JOIN standards st ON rt.standard_id = st.id
+  JOIN samples s ON r.sample_id = s.id
+  LEFT JOIN LATERAL (
+    SELECT result_value, declaration_of_conformity
+    FROM test_results
+    WHERE record_test_id = rt.id
+    ORDER BY test_date DESC, created_at DESC
+    LIMIT 1
+  ) tr ON true
+  WHERE ir.invoice_id = $1
+  ORDER BY r.record_number, rt.id
+`,
+    [invoiceId],
   );
 
   invoice.records = recordsResult.rows;
@@ -214,7 +222,7 @@ export async function getInvoiceById(invoiceId) {
     WHERE p.invoice_id = $1
     ORDER BY p.payment_date DESC, p.created_at DESC
   `,
-    [invoiceId]
+    [invoiceId],
   );
 
   invoice.payments = paymentsResult.rows;
@@ -264,7 +272,7 @@ export async function searchInvoicesByPartialNumber(partialCode) {
     ORDER BY i.invoice_date DESC
     LIMIT 20
   `,
-    [`%${trimmed}%`]
+    [`%${trimmed}%`],
   );
 
   return result.rows;
@@ -289,7 +297,7 @@ export async function getInvoicesByCustomer(customerId) {
     GROUP BY i.id, c.name, o.full_name
     ORDER BY i.invoice_date DESC
   `,
-    [customerId]
+    [customerId],
   );
 
   return result.rows;

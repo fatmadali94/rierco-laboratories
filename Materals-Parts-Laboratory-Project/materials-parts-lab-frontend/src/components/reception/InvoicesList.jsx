@@ -89,6 +89,17 @@ const InvoicesList = () => {
   });
   const expandedInvoice = invoices.find((inv) => inv.id === expandedInvoiceId);
 
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
+
   // Load invoices
   useEffect(() => {
     if (!searchTerm) {
@@ -148,7 +159,7 @@ const InvoicesList = () => {
           searchRecords({
             searchTerm: recordSearch,
             state: "",
-          })
+          }),
         );
         setShowRecordDropdown(true);
       }, 300);
@@ -166,14 +177,14 @@ const InvoicesList = () => {
           fetchRecordsByCustomer({
             customerName: selectedEntity.id,
             state: "",
-          })
+          }),
         );
       } else if (searchMode === "orderer" && selectedEntity.id) {
         dispatch(
           fetchRecordsByOrderer({
             ordererName: selectedEntity.id,
             state: "",
-          })
+          }),
         );
       }
     } else if (searchMode === "record" && selectedRecords.length > 0) {
@@ -227,13 +238,13 @@ const InvoicesList = () => {
           tax_rate: parseFloat(invoiceForm.tax_rate),
           discount_amount: parseFloat(invoiceForm.discount_amount),
           invoice_additional_charges: parseFloat(
-            invoiceForm.invoice_additional_charges
+            invoiceForm.invoice_additional_charges,
           ),
           invoice_date: invoiceForm.invoice_date
             ? getTodayJalaliAsGregorian(invoiceForm.invoice_date)
             : null,
           notes: invoiceForm.notes || null,
-        })
+        }),
       ).unwrap();
 
       // Reset and close modal
@@ -243,7 +254,7 @@ const InvoicesList = () => {
       dispatch(fetchInvoices(filters));
     } catch (err) {
       console.error("Failed to create invoice:", err);
-      alert(err.message || "خطا در ایجاد فاکتور");
+      alert(err.message || "احتمالا یکی از رکوردها قبلا فاکتور شده است");
     }
   };
 
@@ -317,7 +328,7 @@ const InvoicesList = () => {
       expandedInvoice.invoice_additional_charges
     ) {
       formDataToSend.invoice_additional_charges = parseFloat(
-        editForm.invoice_additional_charges
+        editForm.invoice_additional_charges,
       );
     }
 
@@ -363,7 +374,7 @@ const InvoicesList = () => {
         updateInvoice({
           invoiceId: expandedInvoiceId,
           updates: formDataToSend,
-        })
+        }),
       ).unwrap();
 
       // Refresh invoices list
@@ -410,7 +421,7 @@ const InvoicesList = () => {
     setSelectedRecords((prev) =>
       prev.includes(recordId)
         ? prev.filter((id) => id !== recordId)
-        : [...prev, recordId]
+        : [...prev, recordId],
     );
   };
 
@@ -423,6 +434,7 @@ const InvoicesList = () => {
   };
 
   const displayInvoices = searchTerm ? invoiceSearchResults : invoices;
+  console.log(displayInvoices);
 
   // Get available records based on search mode
   let availableRecords = [];
@@ -439,7 +451,7 @@ const InvoicesList = () => {
       : allRecords.filter((r) => selectedRecords.includes(r.id));
   const subtotal = selectedRecordsData.reduce(
     (sum, r) => sum + parseFloat(r.total_price || 0),
-    0
+    0,
   );
   const taxAmount = (subtotal * parseFloat(invoiceForm.tax_rate || 0)) / 100;
   const totalAmount =
@@ -457,7 +469,7 @@ const InvoicesList = () => {
 
     if (
       !window.confirm(
-        "آیا از حذف این فاکتور اطمینان دارید؟ این عملیات غیرقابل بازگشت است."
+        "آیا از حذف این فاکتور اطمینان دارید؟ این عملیات غیرقابل بازگشت است.",
       )
     ) {
       return;
@@ -607,17 +619,17 @@ const InvoicesList = () => {
                     </td>
                     <td className="px-6 py-4 text-center text-sm font-medium text-white">
                       {new Date(invoice.invoice_date).toLocaleDateString(
-                        "fa-IR"
+                        "fa-IR",
                       )}
                     </td>
                     <td className="px-6 py-4 text-center text-sm font-medium text-green-200">
-                      {invoice.total_amount.toLocaleString()} تومان
+                      {formatCurrency(invoice.total_amount)} ریال
                     </td>
                     <td className="px-6 py-4 text-center text-sm font-medium text-blue-200">
-                      {invoice.amount_paid.toLocaleString()} تومان
+                      {formatCurrency(invoice.amount_paid)} ریال
                     </td>
                     <td className="px-6 py-4 text-center text-sm font-medium text-red-200">
-                      {invoice.amount_remaining.toLocaleString()} تومان
+                      {formatCurrency(invoice.amount_remaining)} ریال
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span
@@ -656,12 +668,12 @@ const InvoicesList = () => {
                               onClick={async () => {
                                 if (
                                   window.confirm(
-                                    `آیا از نهایی کردن فاکتور ${invoice.invoice_number} اطمینان دارید؟ پس از نهایی شدن، امکان ویرایش وجود نخواهد داشت.`
+                                    `آیا از نهایی کردن فاکتور ${invoice.invoice_number} اطمینان دارید؟ پس از نهایی شدن، امکان ویرایش وجود نخواهد داشت.`,
                                   )
                                 ) {
                                   try {
                                     await dispatch(
-                                      finalizeInvoice(invoice.id)
+                                      finalizeInvoice(invoice.id),
                                     ).unwrap();
                                     dispatch(fetchInvoices(filters));
                                     alert("فاکتور با موفقیت نهایی شد"); // Add success message
@@ -735,7 +747,7 @@ const InvoicesList = () => {
 
                             <div>
                               <label className="block text-sm text-neutral-300 mb-2">
-                                تخفیف (تومان)
+                                تخفیف (ریال)
                               </label>
                               <input
                                 type="number"
@@ -745,7 +757,7 @@ const InvoicesList = () => {
                                 onChange={(e) =>
                                   handleFieldChange(
                                     "discount_amount",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 className="w-full h-11 px-3 bg-black border border-orange rounded text-sm text-white"
@@ -754,7 +766,7 @@ const InvoicesList = () => {
 
                             <div>
                               <label className="block text-sm text-neutral-300 mb-2">
-                                هزینه اضافی (تومان)
+                                هزینه اضافی (ریال)
                               </label>
                               <input
                                 type="number"
@@ -764,7 +776,7 @@ const InvoicesList = () => {
                                 onChange={(e) =>
                                   handleFieldChange(
                                     "invoice_additional_charges",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 className="w-full h-11 px-3 bg-black border border-orange rounded text-sm text-white"
@@ -798,7 +810,7 @@ const InvoicesList = () => {
                               onChange={(e) =>
                                 handleFieldChange(
                                   "payment_state",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full h-11 px-3 bg-black border border-orange rounded text-sm text-white"
@@ -836,7 +848,7 @@ const InvoicesList = () => {
                               onChange={(e) =>
                                 handleFieldChange(
                                   "terms_and_conditions",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               rows="3"
@@ -852,38 +864,35 @@ const InvoicesList = () => {
                             <div className="grid grid-cols-2 gap-2 text-sm">
                               <div className="text-neutral-400">مجموع جزء:</div>
                               <div className="text-neutral-200 text-left">
-                                {invoice.subtotal?.toLocaleString()} تومان
+                                {formatCurrency(invoice.subtotal)} ریال
                               </div>
 
                               <div className="text-neutral-400">
                                 مالیات ({editForm.tax_rate}%):
                               </div>
                               <div className="text-neutral-200 text-left">
-                                {(
+                                {formatCurrency(
                                   (invoice.subtotal *
                                     parseFloat(editForm.tax_rate || 0)) /
-                                  100
-                                ).toLocaleString()}{" "}
-                                تومان
+                                    100,
+                                )}{" "}
+                                ریال
                               </div>
 
                               <div className="text-neutral-400">
                                 هزینه اضافی:
                               </div>
                               <div className="text-neutral-200 text-left">
-                                {parseFloat(
-                                  editForm.invoice_additional_charges || 0
-                                ).toLocaleString()}{" "}
-                                تومان
+                                {formatCurrency(
+                                  editForm.invoice_additional_charges,
+                                )}{" "}
+                                ریال
                               </div>
 
                               <div className="text-neutral-400">تخفیف:</div>
                               <div className="text-red-400 text-left">
-                                -
-                                {parseFloat(
-                                  editForm.discount_amount || 0
-                                ).toLocaleString()}{" "}
-                                تومان
+                                - {formatCurrency(editForm.discount_amount)}
+                                ریال
                               </div>
 
                               <div className="text-neutral-200 font-bold pt-2 border-t border-neutral-700">
@@ -892,7 +901,7 @@ const InvoicesList = () => {
                               <div className="text-green-400 font-bold text-lg text-left pt-2 border-t border-neutral-700">
                                 {(() => {
                                   const subtotal = parseFloat(
-                                    invoice.subtotal || 0
+                                    invoice.subtotal || 0,
                                   );
                                   const taxAmount =
                                     (subtotal *
@@ -902,13 +911,13 @@ const InvoicesList = () => {
                                     subtotal +
                                     taxAmount +
                                     parseFloat(
-                                      editForm.invoice_additional_charges || 0
+                                      editForm.invoice_additional_charges || 0,
                                     ) -
                                     parseFloat(editForm.discount_amount || 0);
 
                                   return total.toLocaleString();
                                 })()}
-                                تومان
+                                ریال
                               </div>
                             </div>
                           </div>
@@ -1208,13 +1217,13 @@ const InvoicesList = () => {
                               onClick={() => {
                                 setSelectedRecords(
                                   selectedRecords.filter(
-                                    (id) => id !== record.id
-                                  )
+                                    (id) => id !== record.id,
+                                  ),
                                 );
                                 setSelectedRecordObjects(
                                   selectedRecordObjects.filter(
-                                    (r) => r.id !== record.id
-                                  )
+                                    (r) => r.id !== record.id,
+                                  ),
                                 );
                               }}
                               className="text-red-400 hover:text-red-300"
@@ -1236,7 +1245,7 @@ const InvoicesList = () => {
                           >
                             <div className="flex items-center justify-between">
                               <div className="text-yellow font-medium">
-                                {record.total_price} تومان
+                                {record.total_price} ریال
                               </div>
                               <div className="text-orange font-medium">
                                 {record.orderer_name}
@@ -1425,8 +1434,8 @@ const InvoicesList = () => {
                                 </span>
                               </td>
                               <td className="px-4 py-3 text-sm font-medium text-green-400">
-                                {record.total_price?.toLocaleString() || "0"}{" "}
-                                تومان
+                                {formatCurrency(record.total_price)}
+                                ریال
                               </td>
                             </tr>
                           ))}
@@ -1486,7 +1495,7 @@ const InvoicesList = () => {
                       <label
                         className={`absolute right-3 rounded-md bg-black px-1 text-xs text-white transition-all pointer-events-none ${invoiceForm.discount_amount ? "top-0 -translate-y-1/2 text-xs " : "top-1/2 -translate-y-1/2 peer-focus:top-0"}`}
                       >
-                        مبلغ تخفیف (تومان)
+                        مبلغ تخفیف (ریال)
                       </label>
                     </div>
 
@@ -1524,7 +1533,7 @@ const InvoicesList = () => {
                       <label
                         className={`absolute right-3 rounded-md bg-black px-1 text-xs text-white transition-all pointer-events-none ${invoiceForm.invoice_additional_charges ? "top-0 -translate-y-1/2 text-xs " : "top-1/2 -translate-y-1/2 peer-focus:top-0"}`}
                       >
-                        هزینه اضافی (تومان)
+                        هزینه اضافی (ریال)
                       </label>
                     </div>
 
@@ -1557,40 +1566,38 @@ const InvoicesList = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between text-neutral-300">
                         <span className="font-medium text-lg">
-                          {subtotal.toLocaleString()} تومان
+                          {formatCurrency(subtotal)}
+                          ریال
                         </span>
                         <span>
                           :جمع مبالغ پایه ({selectedRecords.length} رکورد)
                         </span>
                       </div>
                       <div className="flex justify-between text-neutral-400 text-sm">
-                        <span>+ {taxAmount.toLocaleString()} تومان</span>
+                        <span>+ {formatCurrency(taxAmount)} ریال</span>
                         <span>
                           :مالیات بر ارزش افزوده ({invoiceForm.tax_rate}%)
                         </span>
                       </div>
                       <div className="flex justify-between text-neutral-400 text-sm">
                         <span>
-                          -{" "}
-                          {parseFloat(
-                            invoiceForm.discount_amount || 0
-                          ).toLocaleString()}{" "}
-                          تومان
+                          - {formatCurrency(invoiceForm.discount_amount)}
+                          ریال
                         </span>
                         <span>:تخفیف</span>
                       </div>
                       <div className="flex justify-between text-neutral-400 text-sm">
                         <span>
                           +{" "}
-                          {parseFloat(
-                            invoiceForm.invoice_additional_charges || 0
-                          ).toLocaleString()}{" "}
-                          تومان
+                          {formatCurrency(
+                            invoiceForm.invoice_additional_charges,
+                          )}
+                          ریال
                         </span>
                         <span>:هزینه اضافه</span>
                       </div>
                       <div className="flex justify-between text-green-400 font-bold text-xl pt-3 border-t border-[#5271ff]/30">
-                        <span>{totalAmount.toLocaleString()} تومان</span>
+                        <span>{formatCurrency(totalAmount)} ریال</span>
                         <span>:مبلغ قابل پرداخت</span>
                       </div>
                     </div>

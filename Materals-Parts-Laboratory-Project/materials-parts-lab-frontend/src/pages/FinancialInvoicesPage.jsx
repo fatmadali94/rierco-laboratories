@@ -30,7 +30,7 @@ const FinancialInvoicesPage = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const { invoices, pagination, filters, loading, error } = useSelector(
-    (state) => state.financialInvoices
+    (state) => state.financialInvoices,
   );
   console.log(invoices);
 
@@ -98,13 +98,15 @@ const FinancialInvoicesPage = () => {
     }
   };
 
-  // const formatCurrency = (amount) => {
-  //   return new Intl.NumberFormat("en-US", {
-  //     style: "currency",
-  //     currency: "USD",
-  //   }).format(amount || 0);
-  // };
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
 
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
   const formatDate = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleDateString("en-US", {
@@ -120,7 +122,7 @@ const FinancialInvoicesPage = () => {
       key !== "limit" &&
       value !== null &&
       value !== undefined &&
-      value !== ""
+      value !== "",
   ).length;
 
   return (
@@ -450,7 +452,7 @@ const FinancialInvoicesPage = () => {
                       تاریخ پرداخت
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      مقدار
+                      مقدار(تومان)
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-bold text-slate-700 uppercase tracking-wider">
                       وضعیت
@@ -511,28 +513,29 @@ const FinancialInvoicesPage = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                           {new Date(invoice.invoice_date).toLocaleDateString(
-                            "fa-IR"
+                            "fa-IR",
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                           {new Date(invoice.payment_date).toLocaleDateString(
-                            "fa-IR"
+                            "fa-IR",
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-bold text-slate-900">
-                            {invoice.total_amount}
+                            {formatCurrency(invoice.total_amount)}
                           </div>
                           {invoice.payment_state === "partial" && (
                             <div className="text-xs text-slate-500">
-                              پرداخت شده: {invoice.amount_paid}
+                              پرداخت شده:{" "}
+                              {formatCurrency(invoice.amount_paid)}{" "}
                             </div>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${getPaymentStateColor(
-                              invoice.payment_state
+                              invoice.payment_state,
                             )}`}
                           >
                             {getPaymentStateLabel(invoice.payment_state)}
@@ -541,9 +544,8 @@ const FinancialInvoicesPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                           <div className="flex items-center gap-2">
                             <span className="font-medium">
-                              {invoice.total_records || 0}
+                              {invoice.total_records || 0} تا
                             </span>
-                            <span className="text-slate-500">رکوردها</span>
                           </div>
                         </td>
                       </tr>
@@ -566,7 +568,7 @@ const FinancialInvoicesPage = () => {
                     <span className="font-medium text-slate-900">
                       {Math.min(
                         pagination.page * pagination.limit,
-                        pagination.total
+                        pagination.total,
                       )}
                     </span>{" "}
                     از{" "}

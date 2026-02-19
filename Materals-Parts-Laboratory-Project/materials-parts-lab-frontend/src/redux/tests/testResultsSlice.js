@@ -49,10 +49,10 @@ export const createTestResult = createAsyncThunk(
       return response;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to create test result"
+        error.response?.data?.error || "Failed to create test result",
       );
     }
-  }
+  },
 );
 
 /**
@@ -63,17 +63,17 @@ export const fetchResultsByRecord = createAsyncThunk(
   async (recordId, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.get(
-        `/test-results/record/${recordId}`
+        `/test-results/record/${recordId}`,
       );
       // Your API interceptor already returns response.data
       // response = { message: "...", count: X, results: [...] }
       return response;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to fetch results"
+        error.response?.data?.error || "Failed to fetch results",
       );
     }
-  }
+  },
 );
 
 /**
@@ -84,17 +84,17 @@ export const fetchResultsWithTests = createAsyncThunk(
   async (recordId, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.get(
-        `/test-results/record/${recordId}/with-tests`
+        `/test-results/record/${recordId}/with-tests`,
       );
       // Your API interceptor already returns response.data
       // response = { message: "...", data: [...] }
       return response;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to fetch results"
+        error.response?.data?.error || "Failed to fetch results",
       );
     }
-  }
+  },
 );
 
 /**
@@ -105,17 +105,17 @@ export const fetchResultsByRecordTest = createAsyncThunk(
   async (recordTestId, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.get(
-        `/test-results/record-test/${recordTestId}`
+        `/test-results/record-test/${recordTestId}`,
       );
       // Your API interceptor already returns response.data
       // response = { message: "...", count: X, results: [...] }
       return response;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to fetch results"
+        error.response?.data?.error || "Failed to fetch results",
       );
     }
-  }
+  },
 );
 
 /**
@@ -131,10 +131,10 @@ export const fetchResultById = createAsyncThunk(
       return response;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to fetch result"
+        error.response?.data?.error || "Failed to fetch result",
       );
     }
-  }
+  },
 );
 
 /**
@@ -177,7 +177,7 @@ export const updateTestResult = createAsyncThunk(
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       // Your API interceptor already returns response.data
@@ -185,10 +185,10 @@ export const updateTestResult = createAsyncThunk(
       return response;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to update test result"
+        error.response?.data?.error || "Failed to update test result",
       );
     }
-  }
+  },
 );
 
 /**
@@ -199,17 +199,17 @@ export const deleteTestResult = createAsyncThunk(
   async (resultId, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.delete(
-        `/test-results/${resultId}`
+        `/test-results/${resultId}`,
       );
       // Your API interceptor already returns response.data
       // response = { message: "...", result: {...} }
       return { ...response, resultId };
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Failed to delete test result"
+        error.response?.data?.error || "Failed to delete test result",
       );
     }
-  }
+  },
 );
 
 // Slice
@@ -315,7 +315,7 @@ const testResultsSlice = createSlice({
         state.loading = false;
         state.success = true;
         const index = state.results.findIndex(
-          (r) => r.id === action.payload.result.id
+          (r) => r.id === action.payload.result.id,
         );
         if (index !== -1) {
           state.results[index] = action.payload.result;
@@ -339,7 +339,7 @@ const testResultsSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.results = state.results.filter(
-          (r) => r.id !== action.payload.resultId
+          (r) => r.id !== action.payload.resultId,
         );
         if (state.currentResult?.id === action.payload.resultId) {
           state.currentResult = null;

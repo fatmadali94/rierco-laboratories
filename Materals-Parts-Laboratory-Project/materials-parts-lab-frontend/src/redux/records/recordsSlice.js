@@ -21,7 +21,7 @@ export const createRecord = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -41,13 +41,13 @@ export const fetchRecords = createAsyncThunk(
       if (filters.orderer_id) params.append("orderer_id", filters.orderer_id);
 
       const response = await materialsLabApi.get(
-        `/records?${params.toString()}`
+        `/records?${params.toString()}`,
       );
       return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 /**
@@ -62,7 +62,7 @@ export const fetchRecordById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 /**
@@ -76,13 +76,13 @@ export const updateRecordState = createAsyncThunk(
         `/records/${recordId}/state`,
         {
           state,
-        }
+        },
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -100,13 +100,13 @@ export const updateRecordTest = createAsyncThunk(
             updates instanceof FormData
               ? { "Content-Type": "multipart/form-data" }
               : { "Content-Type": "application/json" },
-        }
+        },
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -118,13 +118,13 @@ export const addTestToRecord = createAsyncThunk(
     try {
       const response = await materialsLabApi.post(
         `/records/${recordId}/tests`,
-        testData
+        testData,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -135,13 +135,13 @@ export const removeTestFromRecord = createAsyncThunk(
   async (recordTestId, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.delete(
-        `/records/tests/${recordTestId}`
+        `/records/tests/${recordTestId}`,
       );
       return { recordTestId, ...response.data };
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -156,13 +156,13 @@ export const updateSampleImages = createAsyncThunk(
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-        }
+        },
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -174,13 +174,13 @@ export const searchRecords = createAsyncThunk(
   async ({ searchTerm, state }, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.get(
-        `/records/search/${searchTerm}?state=${state || ""}`
+        `/records/search/${searchTerm}?state=${state || ""}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 export const fetchRecordsByCustomer = createAsyncThunk(
@@ -188,13 +188,13 @@ export const fetchRecordsByCustomer = createAsyncThunk(
   async ({ customerName, state }, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.get(
-        `/records/customer/${customerName}?state=${state || ""}`
+        `/records/customer/${customerName}?state=${state || ""}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 export const fetchRecordsByOrderer = createAsyncThunk(
@@ -202,13 +202,13 @@ export const fetchRecordsByOrderer = createAsyncThunk(
   async ({ ordererName, state }, { rejectWithValue }) => {
     try {
       const response = await materialsLabApi.get(
-        `/records/orderer/${ordererName}?state=${state || ""}`
+        `/records/orderer/${ordererName}?state=${state || ""}`,
       );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -220,13 +220,13 @@ export const updateRecord = createAsyncThunk(
     try {
       const response = await materialsLabApi.patch(
         `/records/${recordId}`,
-        updates
+        updates,
       );
       return response.record;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 /**
@@ -241,7 +241,7 @@ export const deleteRecord = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.error || error.message);
     }
-  }
+  },
 );
 
 /**
@@ -354,7 +354,7 @@ const recordsSlice = createSlice({
       })
       .addCase(createRecord.fulfilled, (state, action) => {
         state.loading = false;
-        state.success = "Record created successfully";
+        state.success = "رکورد با موفقیت ایجاد شد";
         // Add new records to the beginning of the list
         if (action.payload.records) {
           state.records = [...action.payload.records, ...state.records];
@@ -444,7 +444,7 @@ const recordsSlice = createSlice({
         state.success = action.payload.message;
         // Update in records array
         const index = state.records.findIndex(
-          (r) => r.id === action.payload.id
+          (r) => r.id === action.payload.id,
         );
         if (index !== -1) {
           state.records[index] = {

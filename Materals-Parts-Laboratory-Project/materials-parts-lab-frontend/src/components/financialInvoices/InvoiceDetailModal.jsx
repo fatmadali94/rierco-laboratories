@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react"; // ← Make sure useRef is imported!
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchInvoiceById,
   clearSelectedInvoice,
-} from "../../redux/financialInvoice/financialInvoicesSlice.js";
+} from "../../redux/financialInvoice/financialInvoicesSlice";
 import {
   XMarkIcon,
   PrinterIcon,
@@ -22,10 +22,10 @@ import { useReactToPrint } from "react-to-print";
 const InvoiceDetailModal = ({ invoiceId, onClose }) => {
   const dispatch = useDispatch();
   const { selectedInvoice, loading } = useSelector(
-    (state) => state.financialInvoices
+    (state) => state.financialInvoices,
   );
-  const printRef = useRef();
-
+  const printRef = useRef(null); // ← Initialize with null
+  console.log(selectedInvoice);
   useEffect(() => {
     if (invoiceId) {
       dispatch(fetchInvoiceById(invoiceId));
@@ -37,9 +37,38 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
   }, [dispatch, invoiceId]);
 
   const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+    contentRef: printRef, // Pass the ref directly, not a function
     documentTitle: `Invoice_${selectedInvoice?.invoice_number}`,
+    onPrintError: (error) => console.error("Print error:", error), // Add error logging
   });
+
+  // Add a function to debug print
+  const debugPrint = () => {
+    console.log("Print ref:", printRef.current);
+    console.log("Selected invoice:", selectedInvoice);
+    handlePrint();
+  };
+
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+    return new Date(date).toLocaleDateString("fa-IR", {
+      // Persian locale
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
   const getPaymentStateColor = (state) => {
     switch (state) {
@@ -74,7 +103,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 border-t-indigo-600"></div>
             <p className="mt-4 text-slate-600 font-medium">
-              بارگذاری فاکتور...
+              در حال بارگذاری جزئیات فاکتور...
             </p>
           </div>
         </div>
@@ -126,7 +155,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
             <div className="mb-8 flex items-center justify-between">
               <div
                 className={`inline-flex items-center px-6 py-3 rounded-xl text-lg font-bold border-2 ${getPaymentStateColor(
-                  selectedInvoice.payment_state
+                  selectedInvoice.payment_state,
                 )}`}
               >
                 {getPaymentStateLabel(selectedInvoice.payment_state)}
@@ -136,9 +165,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                   تاریخ فاکتور
                 </p>
                 <p className="text-lg font-bold text-slate-900">
-                  {new Date(selectedInvoice.invoice_date).toLocaleDateString(
-                    "fa-IR"
-                  )}
+                  {formatDate(selectedInvoice.invoice_date)}
                 </p>
               </div>
             </div>
@@ -152,13 +179,13 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                     <BuildingOfficeIcon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900">
-                    اطلاعات مشتری حقوقی
+                    اطلاعات مشتری
                   </h3>
                 </div>
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                      نام کمپانی
+                      نام شرکت
                     </p>
                     <p className="text-sm font-bold text-slate-900 mt-1">
                       {selectedInvoice.customer_name || "-"}
@@ -191,7 +218,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                   {selectedInvoice.tax_id && (
                     <div>
                       <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                        شناسه ملی
+                        شناسه مالیاتی
                       </p>
                       <p className="text-sm font-mono text-slate-900 mt-1">
                         {selectedInvoice.tax_id}
@@ -208,13 +235,13 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                     <UserIcon className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-lg font-bold text-slate-900">
-                    اطلاعات متقاضی حقیقی
+                    اطلاعات سفارش‌دهنده
                   </h3>
                 </div>
                 <div className="space-y-3">
                   <div>
                     <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                      نام
+                      نام و نام خانوادگی
                     </p>
                     <p className="text-sm font-bold text-slate-900 mt-1">
                       {selectedInvoice.orderer_name || "-"}
@@ -249,34 +276,34 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div>
                   <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                    تاریخ سررسید
+                    سررسید
                   </p>
                   <p className="text-sm font-bold text-slate-900 mt-1">
-                    {selectedInvoice.due_date}
+                    {formatDate(selectedInvoice.due_date)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                    مقدار کل
+                    مبلغ کل
                   </p>
                   <p className="text-sm font-bold text-slate-900 mt-1">
-                    {selectedInvoice.total_amount}
+                    {formatCurrency(selectedInvoice.total_amount)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                    مقدار پرداخت شده
+                    مبلغ پرداخت شده
                   </p>
                   <p className="text-sm font-bold text-emerald-600 mt-1">
-                    {selectedInvoice.amount_paid}
+                    {formatCurrency(selectedInvoice.amount_paid)}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                    مقدار مانده
+                    مبلغ باقی‌مانده
                   </p>
                   <p className="text-sm font-bold text-rose-600 mt-1">
-                    {selectedInvoice.amount_remaining}
+                    {formatCurrency(selectedInvoice.amount_remaining)}
                   </p>
                 </div>
               </div>
@@ -287,26 +314,26 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
               <div className="mb-8">
                 <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                   <DocumentTextIcon className="w-6 h-6 text-slate-600" />
-                  رکوردهای فاکتور ({selectedInvoice.records.length})
+                  رکوردهای مرتبط ({selectedInvoice.records.length})
                 </h3>
                 <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-200">
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">
-                            رکورد #
+                          <th className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">
+                            شماره رکورد
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">
+                          <th className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">
                             نمونه
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">
-                            تست
+                          <th className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">
+                            آزمایش
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">
+                          <th className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">
                             استاندارد
                           </th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase">
+                          <th className="px-4 py-3 text-right text-xs font-bold text-slate-700 uppercase">
                             وضعیت
                           </th>
                         </tr>
@@ -327,7 +354,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                               </div>
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-700">
-                              {record.standard_code || "-"}
+                              {record.standard_title || "-"}
                             </td>
                             <td className="px-4 py-3 text-sm text-slate-700">
                               {record.record_state || "-"}
@@ -361,7 +388,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                               پرداخت #{index + 1}
                             </p>
                             <p className="text-2xl font-bold text-emerald-600 mt-1">
-                              {payment.amount}
+                              {formatCurrency(payment.amount)}
                             </p>
                           </div>
                           <div className="text-right">
@@ -369,9 +396,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                               تاریخ پرداخت
                             </p>
                             <p className="text-sm font-bold text-slate-900 mt-1">
-                              {new Date(
-                                payment.payment_date
-                              ).toLocaleDateString("fa-IR")}
+                              {formatDate(payment.payment_date)}
                             </p>
                           </div>
                         </div>
@@ -392,7 +417,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                         {payment.reference_number && (
                           <div className="mb-4">
                             <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                              شماره پیگیری
+                              شماره مرجع
                             </p>
                             <p className="text-sm font-mono text-slate-900 mt-1">
                               {payment.reference_number}
@@ -404,7 +429,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                         {payment.notes && (
                           <div className="mb-4">
                             <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">
-                              نت‌ها
+                              یادداشت‌ها
                             </p>
                             <p className="text-sm text-slate-700 mt-1">
                               {payment.notes}
@@ -414,7 +439,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
 
                         {/* Payment Image Preview */}
                         {payment.payment_image && (
-                          <div>
+                          <div className="print:break-inside-avoid">
                             <p className="text-xs text-slate-600 font-medium uppercase tracking-wide mb-3">
                               مدرک پرداخت
                             </p>
@@ -427,16 +452,16 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
                                   window.open(payment.payment_image, "_blank")
                                 }
                               />
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-lg flex items-center justify-center">
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 rounded-lg flex items-center justify-center print:hidden">
                                 <PhotoIcon className="w-12 h-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                               </div>
                               <button
                                 onClick={() =>
                                   window.open(payment.payment_image, "_blank")
                                 }
-                                className="absolute top-3 right-3 px-3 py-1.5 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-lg text-xs font-medium text-slate-700 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                className="absolute top-3 right-3 px-3 py-1.5 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-lg text-xs font-medium text-slate-700 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 print:hidden"
                               >
-                                نمایش تمام صفحه
+                                مشاهده تمام صفحه
                               </button>
                             </div>
                           </div>
@@ -451,7 +476,7 @@ const InvoiceDetailModal = ({ invoiceId, onClose }) => {
             {selectedInvoice.notes && (
               <div className="bg-amber-50 rounded-xl p-6 border border-amber-200">
                 <h3 className="text-lg font-bold text-slate-900 mb-3">
-                  نت‌های فاکتور
+                  یادداشت‌های فاکتور
                 </h3>
                 <p className="text-sm text-slate-700 whitespace-pre-wrap">
                   {selectedInvoice.notes}

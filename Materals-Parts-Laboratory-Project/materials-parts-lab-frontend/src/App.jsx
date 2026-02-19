@@ -12,6 +12,7 @@ import DataManagement from "./pages/DataManagement";
 import LaboratoryPage from "./pages/LaboratoryPage";
 import FinancialInvoicesPage from "./pages/FinancialInvoicesPage";
 import ChatContainer from "./components/chat/ChatContainer";
+import ReportCenter from "./pages/ReportCenter";
 
 function App() {
   const dispatch = useDispatch();
@@ -76,6 +77,14 @@ function App() {
         element={
           <PrivateRoute>
             <FinancialInvoicesPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="گزارشات"
+        element={
+          <PrivateRoute>
+            <ReportCenter />
           </PrivateRoute>
         }
       />

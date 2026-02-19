@@ -24,6 +24,7 @@ import {
   selectActiveStandards,
 } from "../../redux/tests/testsSlice";
 import TestResultsTab from "./TestResultsTab";
+import AutoConfirmToast from "../AutoConfirmToast";
 
 const RecordsResult = () => {
   const dispatch = useDispatch();
@@ -36,13 +37,15 @@ const RecordsResult = () => {
   const loading = useSelector(selectRecordsLoading);
   const activeTests = useSelector(selectActiveTests);
   const activeStandards = useSelector(selectActiveStandards);
+  const [activeRecordId, setActiveRecordId] = useState(null);
+  const [showToast, setShowToast] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [customerSearchTerm, setCustomerSearchTerm] = useState("");
   const [ordererSearchTerm, setOrdererSearchTerm] = useState("");
 
   const [filters, setFilters] = useState({
-    state: "in_laboratory,testing,completed",
+    state: ["in_laboratory", "testing", "completed"],
     page: 1,
     limit: 20,
   });
@@ -71,6 +74,17 @@ const RecordsResult = () => {
     discount: 0,
     reception_notes: "",
   });
+
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
 
   useEffect(() => {
     if (!searchTerm) {
@@ -111,7 +125,7 @@ const RecordsResult = () => {
           fetchRecordsByCustomer({
             customerName: customerSearchTerm,
             state: filters.state,
-          })
+          }),
         );
       }, 300);
       return () => clearTimeout(timer);
@@ -125,7 +139,7 @@ const RecordsResult = () => {
           fetchRecordsByOrderer({
             ordererName: ordererSearchTerm,
             state: filters.state,
-          })
+          }),
         );
       }, 300);
       return () => clearTimeout(timer);
@@ -180,13 +194,13 @@ const RecordsResult = () => {
             additional_charges: parseFloat(editForm.additional_charges) || 0,
             discount: parseFloat(editForm.discount) || 0,
           },
-        })
+        }),
       ).unwrap();
       await dispatch(
         updateRecord({
           recordId: expandedRecordId,
           updates: { modified_by_lab: true },
-        })
+        }),
       ).unwrap();
 
       dispatch(fetchRecords(filters));
@@ -246,13 +260,13 @@ const RecordsResult = () => {
             discount: parseFloat(newTestForm.discount) || 0,
             reception_notes: newTestForm.reception_notes || null,
           },
-        })
+        }),
       ).unwrap();
       await dispatch(
         updateRecord({
           recordId: addingToRecord,
           updates: { modified_by_lab: true },
-        })
+        }),
       ).unwrap();
 
       dispatch(fetchRecords(filters));
@@ -296,7 +310,7 @@ const RecordsResult = () => {
         updateRecord({
           recordId: expandedRecordId,
           updates: { modified_by_lab: true },
-        })
+        }),
       ).unwrap();
       dispatch(fetchRecords(filters));
       alert("آزمون با موفقیت حذف شد");
@@ -397,25 +411,33 @@ const RecordsResult = () => {
     Promise.all(previews).then(setFilePreviews);
   };
 
-  const handleSendToReception = async (recordId) => {
+  const handleSendToReception = (recordId) => {
+    setActiveRecordId(recordId);
+    setShowToast(true);
+  };
+
+  const handleConfirm = async () => {
+    const recordId = activeRecordId; // capture before clearing
+    setActiveRecordId(null); // ← clear FIRST
+    setShowToast(false);
+
     try {
       await dispatch(
-        updateRecordState({
-          recordId: recordId,
-          state: "completed",
-        })
+        updateRecordState({ recordId, state: "completed" }),
       ).unwrap();
       dispatch(fetchRecords(filters));
     } catch (err) {
-      console.error("Failed to send to lab:", err);
-      alert("خطا در ارسال به پذیرش");
+      console.error("Failed to send to reception:", err);
     }
   };
 
+  const handleCancel = () => {
+    setActiveRecordId(null); // ← make sure this is here
+    setShowToast(false);
+  };
   const handleRefreshRecords = () => {
     dispatch(fetchRecords(filters));
   };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -527,7 +549,7 @@ const RecordsResult = () => {
                   تعداد آزمون
                 </th>
                 <th className="px-4 py-3 text-center text-sm border-r border-black  font-medium text-neutral-300">
-                  قیمت کل(تومان)
+                  قیمت کل(ریال)
                 </th>
                 <th className="px-4 py-3 text-center text-sm border-r border-black  font-medium text-neutral-300">
                   وضعیت
@@ -543,11 +565,21 @@ const RecordsResult = () => {
                   {/* Main Row */}
                   <tr className="hover:bg-neutral-800/30 border-b border-black/20">
                     <td className="px-4 py-3 text-center text-sm border-r border-black/20">
-                      <button
-                        onClick={() => handleSendToReception(record.id)}
-                        className="px-3 py-1.5 bg-orange text-center text-white text-sm rounded hover:bg-orange/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={record.record_state === "completed"}
-                      ></button>
+                      <div>
+                        <button
+                          onClick={() => handleSendToReception(record.id)}
+                          className="px-3 py-1.5 bg-orange text-center text-white text-sm rounded hover:bg-orange/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={record.record_state === "completed"}
+                        ></button>
+                        {showToast && (
+                          <AutoConfirmToast
+                            key={activeRecordId} // ← forces fresh mount for each record
+                            message="پرونده به پذیرش برمی‌گردد"
+                            onConfirm={handleConfirm}
+                            onCancel={handleCancel}
+                          />
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-center text-neutral-200 border-r border-black/20">
                       {record.record_number}
@@ -562,7 +594,7 @@ const RecordsResult = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-center font-medium text-green-400 border-r border-black/20">
-                      {record.total_price?.toLocaleString()}
+                      {formatCurrency(record.total_price)}
                     </td>
                     <td className="px-6 py-4 border-r border-black/20">
                       <div className="flex flex-col gap-1">
@@ -632,7 +664,7 @@ const RecordsResult = () => {
                                     updateRecord({
                                       recordId: record.id,
                                       updates: { state: "testing" },
-                                    })
+                                    }),
                                   ).unwrap();
                                 }}
                                 className={`px-6 py-2 rounded-t-lg font-medium transition-colors ${
@@ -822,7 +854,6 @@ const RecordsResult = () => {
             </div>
           )}
         </div>
-
         {/* Edit Test Modal */}
         {showEditModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -925,7 +956,8 @@ const RecordsResult = () => {
                     :قیمت نهایی پیش‌بینی شده
                   </div>
                   <div className="text-xl font-bold text-green-400 mt-1">
-                    {calculatePreviewPrice().toLocaleString()} تومان
+                    {formatCurrency(calculatePreviewPrice())}
+                    ریال
                   </div>
                 </div>
               </div>
@@ -948,6 +980,11 @@ const RecordsResult = () => {
             </div>
           </div>
         )}
+        {/* <ConfirmDialog
+          isOpen={confirmDialog.open}
+          onConfirm={handleConfirmSend}
+          onCancel={() => setConfirmDialog({ open: false, recordId: null })}
+        /> */}
 
         {/* Add Test Modal */}
         {showAddTestModal && (
@@ -975,7 +1012,7 @@ const RecordsResult = () => {
                     <option value="">انتخاب آزمون</option>
                     {activeTests.map((test) => (
                       <option key={test.id} value={test.id}>
-                        {test.title} ({test.base_price?.toLocaleString()} تومان)
+                        {test.title} {formatCurrency(test.base_price)} ریال
                       </option>
                     ))}
                   </select>
@@ -1068,7 +1105,7 @@ const RecordsResult = () => {
                     :قیمت نهایی پیش‌بینی شده
                   </div>
                   <div className="text-xl font-bold text-green-400 mt-1">
-                    {calculateNewTestPrice().toLocaleString()} تومان
+                    {formatCurrency(calculateNewTestPrice())}
                   </div>
                 </div>
               </div>

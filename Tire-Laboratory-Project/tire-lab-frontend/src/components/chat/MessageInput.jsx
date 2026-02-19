@@ -4,6 +4,7 @@ import { addMessage } from "../../features/chat/chatSlice";
 import socketService from "../../services/socket";
 import { FiSend, FiPaperclip, FiSmile, FiX, FiFile } from "react-icons/fi";
 import axios from "axios";
+import { updateMessageId } from "../../features/chat/chatSlice";
 
 const MessageInput = () => {
   const dispatch = useDispatch();
@@ -17,7 +18,7 @@ const MessageInput = () => {
   const fileInputRef = useRef(null);
 
   const { activeConversation, conversations } = useSelector(
-    (state) => state.chat
+    (state) => state.chat,
   );
   const currentUserId = useSelector((state) => state.auth.user?.id);
 
@@ -123,7 +124,7 @@ const MessageInput = () => {
       addMessage({
         conversationId: activeConversation,
         message: tempMessage,
-      })
+      }),
     );
 
     try {
@@ -145,7 +146,7 @@ const MessageInput = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
 
       const uploadedMessage = response.data.message;
@@ -163,7 +164,7 @@ const MessageInput = () => {
           conversationId: activeConversation,
           tempId: tempId,
           realMessage: parsedMessage,
-        })
+        }),
       );
 
       handleRemoveFile();
@@ -203,7 +204,7 @@ const MessageInput = () => {
       addMessage({
         conversationId: activeConversation,
         message: tempMessage,
-      })
+      }),
     );
 
     socketService.emit("send_message", messageData);

@@ -28,7 +28,7 @@ export async function createRecord(data) {
             data.customer.company_email || null,
             data.customer.address || null,
             data.customer.tax_id || null,
-          ]
+          ],
         );
         customerId = customerResult.rows[0].id;
       }
@@ -51,7 +51,7 @@ export async function createRecord(data) {
             data.orderer.mobile || null,
             data.orderer.email || null,
             data.orderer.national_id || null,
-          ]
+          ],
         );
         ordererId = ordererResult.rows[0].id;
       }
@@ -83,7 +83,7 @@ export async function createRecord(data) {
         data.sample.sample_images || [],
         data.sample.sample_condition || null,
         data.sample.expected_completion_date || null,
-      ]
+      ],
     );
     const sampleId = sampleResult.rows[0].id;
 
@@ -96,7 +96,7 @@ export async function createRecord(data) {
         record_number, sample_id, state
       ) VALUES ($1, $2, $3)
       RETURNING id`,
-      [recordNumber, sampleId, "received"]
+      [recordNumber, sampleId, "received"],
     );
     const recordId = recordResult.rows[0].id;
 
@@ -106,7 +106,7 @@ export async function createRecord(data) {
       // Get test price
       const testInfo = await client.query(
         "SELECT base_price FROM tests WHERE id = $1",
-        [test.test_id]
+        [test.test_id],
       );
       const testPrice = testInfo.rows[0]?.base_price;
 
@@ -135,7 +135,7 @@ export async function createRecord(data) {
           finalPrice,
           "pending",
           test.reception_notes || null,
-        ]
+        ],
       );
 
       recordTestIds.push(recordTestResult.rows[0].id);
@@ -223,6 +223,7 @@ export async function getAllRecords(filters = {}) {
             'id', rt.id,
             'test_id', rt.test_id,
             'test_title', t.title,
+            'test_measurement_unit', t.measurement_unit,
             'test_code', t.code,
             'standard_id', rt.standard_id,
             'standard_code', st.code,
@@ -329,6 +330,7 @@ export async function getRecordById(recordId) {
             'id', rt.id,
             'test_id', rt.test_id,
             'test_title', t.title,
+            'test_measurement_unit', t.measurement_unit,
             'standard_id', rt.standard_id,
             'standard_code', st.code,
             'test_price', rt.test_price,
@@ -355,7 +357,7 @@ export async function getRecordById(recordId) {
       r.id, s.sample_name, s.sample_description, s.sample_images, s.quantity, s.sample_condition,
       c.id, c.name, o.id, o.full_name, i.id, i.is_finalized, r.modified_by_lab
   `,
-    [recordId]
+    [recordId],
   );
 
   return result.rows[0] || null;
@@ -403,7 +405,7 @@ export async function updateRecordState(recordId, newState) {
      SET state = $1, updated_at = CURRENT_TIMESTAMP 
      WHERE id = $2 
      RETURNING *`,
-    [newState, recordId]
+    [newState, recordId],
   );
 
   return result.rows[0];
@@ -426,7 +428,7 @@ export async function updateRecordTest(recordTestId, updateData) {
        LEFT JOIN invoice_records ir ON r.id = ir.record_id
        LEFT JOIN invoices i ON ir.invoice_id = i.id
        WHERE rt.id = $1`,
-      [recordTestId]
+      [recordTestId],
     );
 
     if (!checkResult.rows.length) {
@@ -435,7 +437,7 @@ export async function updateRecordTest(recordTestId, updateData) {
 
     if (checkResult.rows[0].is_finalized) {
       throw new Error(
-        "این آزمون قابل ویرایش نیست زیرا فاکتور آن نهایی شده است"
+        "این آزمون قابل ویرایش نیست زیرا فاکتور آن نهایی شده است",
       );
     }
 
@@ -446,7 +448,7 @@ export async function updateRecordTest(recordTestId, updateData) {
     if (updateData.test_id) {
       const testInfo = await client.query(
         "SELECT base_price FROM tests WHERE id = $1",
-        [updateData.test_id]
+        [updateData.test_id],
       );
       testPrice = testInfo.rows[0]?.base_price;
       const additionalCharges = parseFloat(updateData.additional_charges) || 0;
@@ -507,13 +509,13 @@ export async function updateRecordTest(recordTestId, updateData) {
        SET ${updateFields.join(", ")}
        WHERE id = $${paramCount}
        RETURNING *`,
-      updateValues
+      updateValues,
     );
 
     if (updateData.modified_by_lab !== undefined) {
       await client.query(
         `UPDATE records SET modified_by_lab = $1 WHERE id = $2`,
-        [updateData.modified_by_lab, checkResult.rows[0].record_id]
+        [updateData.modified_by_lab, checkResult.rows[0].record_id],
       );
     }
 
@@ -536,7 +538,7 @@ export async function deleteRecord(recordId) {
     // 1. Check if record exists
     const recordCheck = await client.query(
       "SELECT id, state FROM records WHERE id = $1",
-      [recordId]
+      [recordId],
     );
 
     if (recordCheck.rows.length === 0) {
@@ -553,7 +555,7 @@ export async function deleteRecord(recordId) {
     // 4. Check if record is in any invoice (invoice_records table)
     const invoiceCheck = await client.query(
       "SELECT id FROM invoice_records WHERE record_id = $1",
-      [recordId]
+      [recordId],
     );
 
     if (invoiceCheck.rows.length > 0) {
@@ -563,7 +565,7 @@ export async function deleteRecord(recordId) {
     // 5. Get sample_id before deletion
     const sampleQuery = await client.query(
       "SELECT sample_id FROM records WHERE id = $1",
-      [recordId]
+      [recordId],
     );
     const sampleId = sampleQuery.rows[0]?.sample_id;
 
@@ -579,7 +581,7 @@ export async function deleteRecord(recordId) {
     if (sampleId) {
       const otherRecordsUsingThisSample = await client.query(
         "SELECT id FROM records WHERE sample_id = $1",
-        [sampleId]
+        [sampleId],
       );
 
       if (otherRecordsUsingThisSample.rows.length === 0) {
@@ -619,7 +621,7 @@ export async function addTestToRecord(recordId, testData) {
        LEFT JOIN invoice_records ir ON r.id = ir.record_id
        LEFT JOIN invoices i ON ir.invoice_id = i.id
        WHERE r.id = $1`,
-      [recordId]
+      [recordId],
     );
 
     if (!recordCheck.rows.length) {
@@ -628,14 +630,14 @@ export async function addTestToRecord(recordId, testData) {
 
     if (recordCheck.rows[0].is_finalized) {
       throw new Error(
-        "نمی‌توان به این رکورد آزمون اضافه کرد زیرا فاکتور آن نهایی شده است"
+        "نمی‌توان به این رکورد آزمون اضافه کرد زیرا فاکتور آن نهایی شده است",
       );
     }
 
     // Get test price
     const testInfo = await client.query(
       "SELECT base_price FROM tests WHERE id = $1",
-      [testData.test_id]
+      [testData.test_id],
     );
     const testPrice = testInfo.rows[0]?.base_price;
 
@@ -660,7 +662,7 @@ export async function addTestToRecord(recordId, testData) {
         finalPrice,
         "pending",
         testData.reception_notes || null,
-      ]
+      ],
     );
 
     await client.query("COMMIT");
@@ -690,7 +692,7 @@ export async function removeTestFromRecord(recordTestId) {
        LEFT JOIN invoice_records ir ON r.id = ir.record_id
        LEFT JOIN invoices i ON ir.invoice_id = i.id
        WHERE rt.id = $1`,
-      [recordTestId]
+      [recordTestId],
     );
 
     if (!checkResult.rows.length) {
@@ -699,7 +701,7 @@ export async function removeTestFromRecord(recordTestId) {
 
     if (checkResult.rows[0].is_finalized) {
       throw new Error(
-        "نمی‌توان این آزمون را حذف کرد زیرا فاکتور آن نهایی شده است"
+        "نمی‌توان این آزمون را حذف کرد زیرا فاکتور آن نهایی شده است",
       );
     }
 
@@ -726,7 +728,7 @@ export async function updateSampleImages(sampleId, imageUrls) {
      SET sample_images = $1, updated_at = CURRENT_TIMESTAMP 
      WHERE id = $2 
      RETURNING *`,
-    [JSON.stringify(imageUrls), sampleId]
+    [JSON.stringify(imageUrls), sampleId],
   );
 
   return result.rows[0];
@@ -882,7 +884,7 @@ export async function searchRecordsByNumber(RecordIdOrSearch, state) {
 export async function getRecordInvoiceId(recordId) {
   const result = await pool.query(
     `SELECT invoice_id FROM invoice_records WHERE record_id = $1`,
-    [recordId]
+    [recordId],
   );
 
   return result.rows[0]?.invoice_id || null;
@@ -904,12 +906,12 @@ export async function recalculateInvoiceTotals(invoiceId) {
        JOIN records r ON ir.record_id = r.id
        JOIN record_tests rt ON r.id = rt.record_id
        WHERE ir.invoice_id = $1`,
-      [invoiceId]
+      [invoiceId],
     );
 
     const subtotal = recordTests.rows.reduce(
       (sum, rt) => sum + parseFloat(rt.final_price),
-      0
+      0,
     );
 
     // Get invoice tax rate and discount
@@ -917,7 +919,7 @@ export async function recalculateInvoiceTotals(invoiceId) {
       `SELECT tax_rate, discount_amount, amount_paid
        FROM invoices
        WHERE id = $1`,
-      [invoiceId]
+      [invoiceId],
     );
 
     const taxRate = invoice.rows[0].tax_rate;
@@ -937,7 +939,7 @@ export async function recalculateInvoiceTotals(invoiceId) {
          amount_remaining = $4,
          updated_at = CURRENT_TIMESTAMP
        WHERE id = $5`,
-      [subtotal, taxAmount, totalAmount, amountRemaining, invoiceId]
+      [subtotal, taxAmount, totalAmount, amountRemaining, invoiceId],
     );
 
     await client.query("COMMIT");
@@ -977,7 +979,7 @@ export async function searchTests(searchTerm) {
       )
     ORDER BY title
     LIMIT 20`,
-    [`%${searchTerm}%`]
+    [`%${searchTerm}%`],
   );
 
   return result.rows;
@@ -995,7 +997,7 @@ export async function finalizeInvoice(invoiceId) {
        updated_at = CURRENT_TIMESTAMP
      WHERE id = $1
      RETURNING *`,
-    [invoiceId]
+    [invoiceId],
   );
 
   if (!result.rows.length) {

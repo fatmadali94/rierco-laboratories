@@ -23,6 +23,7 @@ import {
   fetchActiveStandards,
   selectActiveStandards,
 } from "../../redux/tests/testsSlice";
+import AutoConfirmToast from "../AutoConfirmToast";
 
 const RecordsList = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,8 @@ const RecordsList = () => {
   const loading = useSelector(selectRecordsLoading);
   const activeTests = useSelector(selectActiveTests);
   const activeStandards = useSelector(selectActiveStandards);
+  const [activeRecordId, setActiveRecordId] = useState(null);
+  const [showToast, setShowToast] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [customerSearchTerm, setCustomerSearchTerm] = useState("");
@@ -70,6 +73,17 @@ const RecordsList = () => {
     discount: 0,
     reception_notes: "",
   });
+
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
 
   useEffect(() => {
     if (!searchTerm) {
@@ -108,7 +122,7 @@ const RecordsList = () => {
           fetchRecordsByCustomer({
             customerName: customerSearchTerm,
             state: filters.state,
-          })
+          }),
         );
       }, 300);
       return () => clearTimeout(timer);
@@ -122,7 +136,7 @@ const RecordsList = () => {
           fetchRecordsByOrderer({
             ordererName: ordererSearchTerm,
             state: filters.state,
-          })
+          }),
         );
       }, 300);
       return () => clearTimeout(timer);
@@ -178,7 +192,7 @@ const RecordsList = () => {
             additional_charges: parseFloat(editForm.additional_charges) || 0,
             discount: parseFloat(editForm.discount) || 0,
           },
-        })
+        }),
       ).unwrap();
 
       // Refresh records to show updated data
@@ -242,7 +256,7 @@ const RecordsList = () => {
             discount: parseFloat(newTestForm.discount) || 0,
             reception_notes: newTestForm.reception_notes || null,
           },
-        })
+        }),
       ).unwrap();
 
       // Refresh records
@@ -306,7 +320,7 @@ const RecordsList = () => {
 
     if (
       !window.confirm(
-        "آیا از حذف این رکورد اطمینان دارید؟ این عملیات غیرقابل بازگشت است."
+        "آیا از حذف این رکورد اطمینان دارید؟ این عملیات غیرقابل بازگشت است.",
       )
     ) {
       return;
@@ -457,7 +471,7 @@ const RecordsList = () => {
         updateRecord({
           recordId: expandedRecordId,
           updates: formDataToSend,
-        })
+        }),
       ).unwrap();
 
       setExpandedRecordId(null);
@@ -470,18 +484,21 @@ const RecordsList = () => {
   };
 
   // Send to lab
-  const handleSendToLab = async (recordId) => {
+  const handleSendToLab = (recordId) => {
+    setActiveRecordId(recordId);
+    setShowToast(true);
+  };
+
+  const handleConfirm = async () => {
+    setActiveRecordId(null);
     try {
       await dispatch(
-        updateRecordState({
-          recordId: recordId,
-          state: "in_laboratory",
-        })
+        updateRecordState({ recordId: activeRecordId, state: "in_laboratory" }),
       ).unwrap();
       dispatch(fetchRecords(filters));
+      console.log("Confirmed:", activeRecordId);
     } catch (err) {
-      console.error("Failed to send to lab:", err);
-      alert("خطا در ارسال به آزمایشگاه");
+      console.error("Failed:", err);
     }
   };
 
@@ -600,7 +617,7 @@ const RecordsList = () => {
                   تعداد آزمون
                 </th>
                 <th className="px-4 py-3 text-center text-sm border-r border-black  font-medium text-neutral-300">
-                  قیمت کل(تومان)
+                  قیمت کل(ریال)
                 </th>
                 <th className="px-4 py-3 text-center text-sm border-r border-black  font-medium text-neutral-300">
                   وضعیت
@@ -623,6 +640,13 @@ const RecordsList = () => {
                         onClick={() => handleSendToLab(record.id)}
                         className="px-3 py-1.5 bg-orange text-center text-white text-sm rounded hover:bg-orange/50 disabled:opacity-50 disabled:cursor-not-allowed"
                       ></button>
+                      {showToast && (
+                        <AutoConfirmToast
+                          message="پرونده به آزمایشگاه ارسال می‌شود"
+                          onConfirm={handleConfirm}
+                          onCancel={() => setShowToast(false)}
+                        />
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-center text-neutral-200 border-r border-black/20">
                       {record.record_number}
@@ -643,7 +667,7 @@ const RecordsList = () => {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-center font-medium text-green-400 border-r border-black/20">
-                      {record.total_price?.toLocaleString()}
+                      {formatCurrency(record.total_price)}
                     </td>
                     <td className="px-6 py-4 border-r border-black/20">
                       <div className="flex flex-col gap-1">
@@ -758,28 +782,32 @@ const RecordsList = () => {
                                             <div className="text-neutral-400">
                                               قیمت پایه:{" "}
                                               <span className="text-neutral-200">
-                                                {test.test_price?.toLocaleString()}{" "}
-                                                تومان
+                                                {formatCurrency(
+                                                  test.test_price,
+                                                )}
+                                                ریال
                                               </span>
                                             </div>
                                             {test.additional_charges > 0 && (
                                               <div className="text-green-400">
                                                 + هزینه اضافی:{" "}
-                                                {test.additional_charges?.toLocaleString()}{" "}
-                                                تومان
+                                                {formatCurrency(
+                                                  test.additional_charges,
+                                                )}
+                                                ریال
                                               </div>
                                             )}
                                             {test.discount > 0 && (
                                               <div className="text-red-400">
                                                 - تخفیف:{" "}
-                                                {test.discount?.toLocaleString()}{" "}
-                                                تومان
+                                                {formatCurrency(test.discount)}
+                                                ریال
                                               </div>
                                             )}
                                             <div className="font-bold text-neutral-100">
                                               قیمت نهایی:{" "}
-                                              {test.final_price?.toLocaleString()}{" "}
-                                              تومان
+                                              {formatCurrency(test.final_price)}
+                                              ریال
                                             </div>
                                           </div>
 
@@ -1145,7 +1173,7 @@ const RecordsList = () => {
                     <option value="">انتخاب آزمون</option>
                     {activeTests.map((test) => (
                       <option key={test.id} value={test.id}>
-                        {test.title} ({test.base_price?.toLocaleString()} تومان)
+                        {test.title} {formatCurrency(test.base_price)} ریال
                       </option>
                     ))}
                   </select>
@@ -1224,7 +1252,7 @@ const RecordsList = () => {
                     قیمت نهایی پیش‌بینی:
                   </div>
                   <div className="text-xl font-bold text-green-400 mt-1">
-                    {calculatePreviewPrice().toLocaleString()} تومان
+                    {formatCurrency(calculatePreviewPrice())} ریال
                   </div>
                 </div>
               </div>
@@ -1276,7 +1304,7 @@ const RecordsList = () => {
                     <option value="">انتخاب آزمون</option>
                     {activeTests.map((test) => (
                       <option key={test.id} value={test.id}>
-                        {test.title} ({test.base_price?.toLocaleString()} تومان)
+                        {test.title} {formatCurrency(test.base_price)} ریال
                       </option>
                     ))}
                   </select>
@@ -1373,7 +1401,7 @@ const RecordsList = () => {
                     قیمت نهایی پیش‌بینی:
                   </div>
                   <div className="text-xl font-bold text-green-400 mt-1">
-                    {calculateNewTestPrice().toLocaleString()} تومان
+                    {calculateNewTestPrice().toLocaleString()} ریال
                   </div>
                 </div>
               </div>

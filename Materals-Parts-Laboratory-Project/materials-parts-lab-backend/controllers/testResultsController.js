@@ -20,14 +20,13 @@ export const createResult = async (req, res) => {
       record_id,
       record_test_id,
       result_value,
-      result_unit,
       uncertainty,
       acceptance_range,
       declaration_of_conformity,
       test_method_description,
       observations,
       environmental_conditions,
-      is_final,
+      passed,
       test_date,
     } = req.body;
 
@@ -66,7 +65,6 @@ export const createResult = async (req, res) => {
       record_id,
       record_test_id,
       result_value,
-      result_unit,
       uncertainty,
       acceptance_range,
       declaration_of_conformity,
@@ -74,7 +72,7 @@ export const createResult = async (req, res) => {
       observations,
       environmental_conditions,
       result_files: uploadedFileUrls,
-      is_final: is_final === "true" || is_final === true,
+      passed: passed === "true" || passed === true,
       test_date,
     };
 
@@ -167,6 +165,7 @@ export const getResultsWithTests = async (req, res) => {
         acc[testId] = {
           test_id: testId,
           test_title: result.test_title,
+          test_measurement_unit: result.test_measurement_unit,
           test_code: result.test_code,
           standard_code: result.standard_code,
           standard_title: result.standard_title,
@@ -228,14 +227,13 @@ export const updateResult = async (req, res) => {
     const { resultId } = req.params;
     const {
       result_value,
-      result_unit,
       uncertainty,
       acceptance_range,
       declaration_of_conformity,
       test_method_description,
       observations,
       environmental_conditions,
-      is_final,
+      passed,
       test_date,
       existing_files,
     } = req.body;
@@ -287,7 +285,6 @@ export const updateResult = async (req, res) => {
     // Update the result
     const updateData = {
       result_value,
-      result_unit,
       uncertainty,
       acceptance_range,
       declaration_of_conformity,
@@ -295,7 +292,7 @@ export const updateResult = async (req, res) => {
       observations,
       environmental_conditions,
       result_files: allFileUrls.length > 0 ? allFileUrls : null,
-      is_final: is_final === "true" || is_final === true,
+      passed: passed === "true" || passed === true,
       test_date,
     };
 

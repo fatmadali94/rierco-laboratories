@@ -84,6 +84,17 @@ const CreateOrderForm = () => {
   const [isCustomerSearchActive, setIsCustomerSearchActive] = useState(false); // Track which index is being searched
   const [isOrdererSearchActive, setIsOrdererSearchActive] = useState(false);
 
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
+
   useEffect(() => {
     dispatch(fetchActiveTests());
     dispatch(fetchActiveStandards());
@@ -248,7 +259,7 @@ const CreateOrderForm = () => {
         (test, i) =>
           i === index
             ? { ...test, [fieldName]: value } // Update specific test at index
-            : test // Keep other tests unchanged
+            : test, // Keep other tests unchanged
       ),
     }));
   };
@@ -258,7 +269,7 @@ const CreateOrderForm = () => {
     newTests[index] = {
       ...newTests[index],
       standardId: standard.id,
-      standardSearch: standard.code,
+      standardSearch: standard.title,
     };
     setFormData((prev) => ({ ...prev, tests: newTests }));
 
@@ -889,7 +900,7 @@ const CreateOrderForm = () => {
                                 {testItem.title}
                               </div>
                               <div className="text-xs text-white mt-1">
-                                {testItem.base_price?.toLocaleString()} تومان
+                                {formatCurrency(testItem.base_price)} ریال
                               </div>
                             </li>
                           ))}
@@ -964,10 +975,10 @@ const CreateOrderForm = () => {
                         handleTestFieldChange(
                           index,
                           "additionalCharges",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="(تومان)هزینه اضافی"
+                      placeholder="(ریال)هزینه اضافی"
                       className="w-full h-12 p-3 text-right bg-black border border-white rounded text-sm text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all"
                     />
                   </div>
@@ -982,7 +993,7 @@ const CreateOrderForm = () => {
                       onChange={(e) =>
                         handleTestFieldChange(index, "discount", e.target.value)
                       }
-                      placeholder="(تومان)تخفیف"
+                      placeholder="(ریال)تخفیف"
                       className="w-full h-12 p-3 text-right bg-black border border-white rounded text-sm text-white focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition-all"
                     />
                     {formData.tests.length > 1 && (

@@ -14,6 +14,306 @@ import {
   fetchResultsByRecord,
 } from "../../redux/tests/testResultsSlice";
 
+function PassFailToggle({ value, onChange }) {
+  const options = [
+    {
+      label: "قبول",
+      value: true,
+      color: "#22c55e",
+      glow: "rgba(34,197,94,0.4)",
+    },
+    {
+      label: "خالی",
+      value: "",
+      color: "#6b7280",
+      glow: "rgba(107,114,128,0.3)",
+    },
+    {
+      label: "رد",
+      value: false,
+      color: "#ef4444",
+      glow: "rgba(239,68,68,0.4)",
+    },
+  ];
+
+  return (
+    <div style={{ direction: "rtl" }}>
+      <label
+        style={{
+          display: "block",
+          fontSize: 13,
+          color: "#a3a3a3",
+          marginBottom: 10,
+          fontFamily: "'Vazirmatn', sans-serif",
+        }}
+      >
+        نتیجه آزمون
+      </label>
+      <div
+        style={{
+          display: "inline-flex",
+          background: "linear-gradient(145deg, #0f0f0f, #1a1a1a)",
+          borderRadius: 16,
+          padding: 5,
+          gap: 4,
+          boxShadow:
+            "inset 0 2px 8px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        {options.map((opt) => {
+          const active = value === opt.value;
+          return (
+            <button
+              key={String(opt.value)}
+              onClick={() => onChange(opt.value)}
+              style={{
+                position: "relative",
+                padding: "10px 22px",
+                borderRadius: 12,
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "'Vazirmatn', sans-serif",
+                fontWeight: 700,
+                fontSize: 14,
+                letterSpacing: 0.5,
+                transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                background: active
+                  ? `linear-gradient(145deg, ${opt.color}dd, ${opt.color}99)`
+                  : "transparent",
+                color: active ? "#fff" : "#6b7280",
+                boxShadow: active
+                  ? `0 6px 20px ${opt.glow}, 0 2px 0 rgba(255,255,255,0.15) inset, 0 -2px 0 rgba(0,0,0,0.4) inset`
+                  : "none",
+                transform: active
+                  ? "translateY(-2px) scale(1.03)"
+                  : "translateY(0) scale(1)",
+                textShadow: active ? `0 1px 8px ${opt.glow}` : "none",
+              }}
+            >
+              {active && (
+                <span
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: 12,
+                    background:
+                      "linear-gradient(to bottom, rgba(255,255,255,0.15), transparent)",
+                    pointerEvents: "none",
+                  }}
+                />
+              )}
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Beveled Input
+function BevelInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required,
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ direction: "rtl" }}>
+      <label
+        style={{
+          display: "block",
+          fontSize: 12,
+          fontWeight: 700,
+          color: focused ? "#818cf8" : "#9ca3af",
+          marginBottom: 7,
+          fontFamily: "'Vazirmatn', sans-serif",
+          letterSpacing: 0.3,
+          transition: "color 0.2s",
+        }}
+      >
+        {label}
+        {required && (
+          <span style={{ color: "#f87171", marginRight: 4 }}>*</span>
+        )}
+      </label>
+      <div
+        style={{
+          position: "relative",
+          borderRadius: 12,
+          background: "linear-gradient(145deg, #111, #1c1c1c)",
+          boxShadow: focused
+            ? "0 0 0 2px #5271ff66, 4px 4px 10px rgba(0,0,0,0.5), -1px -1px 0 rgba(255,255,255,0.07) inset, 2px 2px 4px rgba(0,0,0,0.6) inset"
+            : "4px 4px 10px rgba(0,0,0,0.5), -1px -1px 0 rgba(255,255,255,0.06) inset, 2px 2px 4px rgba(0,0,0,0.5) inset",
+          border: focused
+            ? "1.5px solid #5271ff55"
+            : "1.5px solid rgba(255,255,255,0.07)",
+          transition: "all 0.2s",
+        }}
+      >
+        <input
+          type={type}
+          value={value}
+          onChange={onChange}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={placeholder}
+          style={{
+            width: "100%",
+            height: 44,
+            padding: "0 14px",
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: "#f3f4f6",
+            fontSize: 14,
+            fontWeight: 600,
+            fontFamily: "'Vazirmatn', sans-serif",
+            textAlign: "right",
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Beveled Textarea
+function BevelTextarea({ label, value, onChange, placeholder, rows = 3 }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ direction: "rtl" }}>
+      <label
+        style={{
+          display: "block",
+          fontSize: 12,
+          fontWeight: 700,
+          color: focused ? "#818cf8" : "#9ca3af",
+          marginBottom: 7,
+          fontFamily: "'Vazirmatn', sans-serif",
+          letterSpacing: 0.3,
+          transition: "color 0.2s",
+        }}
+      >
+        {label}
+      </label>
+      <div
+        style={{
+          borderRadius: 12,
+          background: "linear-gradient(145deg, #111, #1c1c1c)",
+          boxShadow: focused
+            ? "0 0 0 2px #5271ff66, 4px 4px 10px rgba(0,0,0,0.5), -1px -1px 0 rgba(255,255,255,0.07) inset, 2px 2px 4px rgba(0,0,0,0.6) inset"
+            : "4px 4px 10px rgba(0,0,0,0.5), -1px -1px 0 rgba(255,255,255,0.06) inset, 2px 2px 4px rgba(0,0,0,0.5) inset",
+          border: focused
+            ? "1.5px solid #5271ff55"
+            : "1.5px solid rgba(255,255,255,0.07)",
+          transition: "all 0.2s",
+        }}
+      >
+        <textarea
+          value={value}
+          onChange={onChange}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          placeholder={placeholder}
+          rows={rows}
+          style={{
+            width: "100%",
+            padding: "12px 14px",
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: "#f3f4f6",
+            fontSize: 14,
+            fontWeight: 600,
+            fontFamily: "'Vazirmatn', sans-serif",
+            textAlign: "right",
+            resize: "vertical",
+            boxSizing: "border-box",
+            lineHeight: 1.7,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Info Chip (for pre-fetched data)
+function InfoChip({ label, value }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-end",
+        gap: 6,
+      }}
+    >
+      <span
+        style={{
+          fontSize: 12,
+          fontWeight: 700,
+          color: "#6b7280",
+          fontFamily: "'Vazirmatn', sans-serif",
+          letterSpacing: 0.3,
+        }}
+      >
+        {label}
+      </span>
+      {value ? (
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            background: "linear-gradient(135deg, #1e2540, #1a1f38)",
+            border: "1px solid #5271ff33",
+            borderRadius: 10,
+            padding: "7px 14px",
+            boxShadow:
+              "0 2px 8px rgba(82,113,255,0.15), inset 0 1px 0 rgba(255,255,255,0.05)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 800,
+              color: "#a5b4fc",
+              fontFamily: "'Vazirmatn', sans-serif",
+              letterSpacing: 0.5,
+            }}
+          >
+            {value}
+          </span>
+          <div
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "#5271ff",
+              boxShadow: "0 0 6px #5271ff",
+            }}
+          />
+        </div>
+      ) : (
+        <span
+          style={{
+            fontSize: 13,
+            color: "#374151",
+            fontFamily: "'Vazirmatn', sans-serif",
+          }}
+        >
+          —
+        </span>
+      )}
+    </div>
+  );
+}
+
 const TestResultsTab = ({ record, onRefresh }) => {
   const dispatch = useDispatch();
   const loading = useSelector(selectTestResultsLoading);
@@ -25,19 +325,19 @@ const TestResultsTab = ({ record, onRefresh }) => {
   const [editingResult, setEditingResult] = useState(null);
   const [resultForm, setResultForm] = useState({
     result_value: "",
-    result_unit: "",
     uncertainty: "",
     acceptance_range: "",
     declaration_of_conformity: "",
-    test_method_description: "",
+    // test_method_description: "",
     observations: "",
     environmental_conditions: "",
-    is_final: false,
+    passed: "",
     test_date: new Date().toISOString().split("T")[0],
   });
   const [resultFiles, setResultFiles] = useState([]);
   const [resultFilePreviews, setResultFilePreviews] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
+  console.log(editingResult);
 
   useEffect(() => {
     if (record?.id) {
@@ -71,24 +371,28 @@ const TestResultsTab = ({ record, onRefresh }) => {
   };
 
   const handleAddResult = (test) => {
-    setEditingResult(null);
+    console.log("test object:", test);
     setResultForm({
       result_value: "",
-      result_unit: "",
       uncertainty: "",
       acceptance_range: "",
       declaration_of_conformity: "",
-      test_method_description: "",
+      // test_method_description: "",
       observations: "",
       environmental_conditions: "",
-      is_final: false,
+      passed: "",
       test_date: new Date().toISOString().split("T")[0],
     });
     setResultFiles([]);
     setResultFilePreviews([]);
     setExistingFiles([]);
     setShowResultModal(true);
-    setEditingResult({ record_test_id: test.id, test_title: test.test_title });
+    setEditingResult({
+      record_test_id: test.id,
+      test_title: test.test_title,
+      standard_title: test.standard_title,
+      test_measurement_unit: test.test_measurement_unit,
+    });
   };
 
   const handleEditResult = (result, test) => {
@@ -99,14 +403,13 @@ const TestResultsTab = ({ record, onRefresh }) => {
     });
     setResultForm({
       result_value: result.result_value || "",
-      result_unit: result.result_unit || "",
       uncertainty: result.uncertainty || "",
       acceptance_range: result.acceptance_range || "",
       declaration_of_conformity: result.declaration_of_conformity || "",
-      test_method_description: result.test_method_description || "",
+      // test_method_description: result.test_method_description || "",
       observations: result.observations || "",
       environmental_conditions: result.environmental_conditions || "",
-      is_final: result.is_final || false,
+      passed: result.passed || "",
       test_date: result.test_date
         ? result.test_date.split("T")[0]
         : new Date().toISOString().split("T")[0],
@@ -153,7 +456,7 @@ const TestResultsTab = ({ record, onRefresh }) => {
               existing_files: existingFiles,
               result_files: resultFiles.length > 0 ? resultFiles : null,
             },
-          })
+          }),
         ).unwrap();
 
         console.log("✅ Updated:", result);
@@ -277,7 +580,8 @@ const TestResultsTab = ({ record, onRefresh }) => {
                             <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                               <div>
                                 <span className="text-white">
-                                  {result.result_value} {result.result_unit}
+                                  {result.result_value}{" "}
+                                  {result.test_measurement_unit}
                                 </span>
                                 <span className="text-neutral-500">
                                   {" "}
@@ -320,19 +624,19 @@ const TestResultsTab = ({ record, onRefresh }) => {
                                 </span>
                                 <span className="text-white">
                                   {new Date(
-                                    result.test_date
+                                    result.test_date,
                                   ).toLocaleDateString("fa-IR")}
                                 </span>
                               </div>
                               <div>
                                 <span
                                   className={`px-2 py-0.5 rounded text-xs ${
-                                    result.is_final
+                                    result.passed
                                       ? "bg-green-900/30 text-green-400"
                                       : "bg-gray-700 text-black"
                                   }`}
                                 >
-                                  {result.is_final ? "نهایی" : "پیش‌نویس"}
+                                  {result.passed ? "Pass" : ""}
                                 </span>
                               </div>
                             </div>
@@ -358,12 +662,12 @@ const TestResultsTab = ({ record, onRefresh }) => {
                               💬 {result.observations}
                             </div>
                           )}
-                          {result.test_method_description && (
+                          {/* {result.test_method_description && (
                             <div className="mt-2 text-xs text-neutral-400">
                               <span className="text-neutral-500">روش: </span>
                               {result.test_method_description}
                             </div>
-                          )}
+                          )} */}
                           {result.environmental_conditions && (
                             <div className="mt-1 text-xs text-neutral-400">
                               <span className="text-neutral-500">شرایط: </span>
@@ -407,333 +711,608 @@ const TestResultsTab = ({ record, onRefresh }) => {
 
       {/* Test Result Modal */}
       {showResultModal && editingResult && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-neutral-900 border border-[#5271ff]/20 rounded-lg p-6 max-w-4xl w-full my-8 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-semibold text-neutral-100 mb-4 sticky top-0 bg-neutral-900 pb-2 border-b border-neutral-700">
-              {editingResult.id ? "ویرایش" : "افزودن"} جواب آزمون:{" "}
-              {editingResult.test_title}
-            </h3>
+        <>
+          <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap');
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f0f0f; }
+        ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5271ff44; }
+        input::placeholder, textarea::placeholder { color: #374151; font-weight: 500; }
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(20px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+      `}</style>
 
-            <div className="space-y-4">
-              {/* Row 1: Result Value, Unit, Test Date */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm text-neutral-300 mb-2">
-                    مقدار جواب *
-                  </label>
-                  <input
-                    type="text"
-                    value={resultForm.result_value}
-                    onChange={(e) =>
-                      setResultForm((prev) => ({
-                        ...prev,
-                        result_value: e.target.value,
-                      }))
-                    }
-                    className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                    placeholder="مثال: 25.5"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-neutral-300 mb-2">
-                    واحد
-                  </label>
-                  <input
-                    type="text"
-                    value={resultForm.result_unit}
-                    onChange={(e) =>
-                      setResultForm((prev) => ({
-                        ...prev,
-                        result_unit: e.target.value,
-                      }))
-                    }
-                    className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                    placeholder="مثال: °C, MPa, %"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-neutral-300 mb-2">
-                    تاریخ آزمون *
-                  </label>
-                  <input
-                    type="date"
-                    value={resultForm.test_date}
-                    onChange={(e) =>
-                      setResultForm((prev) => ({
-                        ...prev,
-                        test_date: e.target.value,
-                      }))
-                    }
-                    className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                  />
-                </div>
-              </div>
-
-              {/* Row 2: Uncertainty, Acceptance Range */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-neutral-300 mb-2">
-                    عدم قطعیت
-                  </label>
-                  <input
-                    type="text"
-                    value={resultForm.uncertainty}
-                    onChange={(e) =>
-                      setResultForm((prev) => ({
-                        ...prev,
-                        uncertainty: e.target.value,
-                      }))
-                    }
-                    className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                    placeholder="مثال: ±0.5"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-neutral-300 mb-2">
-                    محدوده پذیرش
-                  </label>
-                  <input
-                    type="text"
-                    value={resultForm.acceptance_range}
-                    onChange={(e) =>
-                      setResultForm((prev) => ({
-                        ...prev,
-                        acceptance_range: e.target.value,
-                      }))
-                    }
-                    className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                    placeholder="مثال: 20-30"
-                  />
-                </div>
-              </div>
-
-              {/* Row 3: Declaration of Conformity */}
-              <div>
-                <label className="block text-sm text-neutral-300 mb-2">
-                  اظهار انطباق
-                </label>
-                <input
-                  type="text"
-                  value={resultForm.declaration_of_conformity}
-                  onChange={(e) =>
-                    setResultForm((prev) => ({
-                      ...prev,
-                      declaration_of_conformity: e.target.value,
-                    }))
-                  }
-                  className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                  placeholder="مثال: منطبق، غیرمنطبق"
-                />
-              </div>
-
-              {/* Row 4: Test Method Description */}
-              <div>
-                <label className="block text-sm text-neutral-300 mb-2">
-                  شرح روش آزمون
-                </label>
-                <textarea
-                  value={resultForm.test_method_description}
-                  onChange={(e) =>
-                    setResultForm((prev) => ({
-                      ...prev,
-                      test_method_description: e.target.value,
-                    }))
-                  }
-                  rows="3"
-                  className="w-full px-3 py-2 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                  placeholder="توضیحات روش آزمون..."
-                />
-              </div>
-
-              {/* Row 5: Environmental Conditions */}
-              <div>
-                <label className="block text-sm text-neutral-300 mb-2">
-                  شرایط محیطی
-                </label>
-                <input
-                  type="text"
-                  value={resultForm.environmental_conditions}
-                  onChange={(e) =>
-                    setResultForm((prev) => ({
-                      ...prev,
-                      environmental_conditions: e.target.value,
-                    }))
-                  }
-                  className="w-full h-11 px-3 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                  placeholder="مثال: دمای 23°C، رطوبت 50%"
-                />
-              </div>
-
-              {/* Row 6: Observations */}
-              <div>
-                <label className="block text-sm text-neutral-300 mb-2">
-                  مشاهدات و یادداشت‌ها
-                </label>
-                <textarea
-                  value={resultForm.observations}
-                  onChange={(e) =>
-                    setResultForm((prev) => ({
-                      ...prev,
-                      observations: e.target.value,
-                    }))
-                  }
-                  rows="3"
-                  className="w-full px-3 py-2 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                  placeholder="یادداشت‌های اضافی..."
-                />
-              </div>
-
-              {/* Row 7: File Upload */}
-              <div>
-                <label className="block text-sm text-neutral-300 mb-2">
-                  فایل‌های ضمیمه (اختیاری)
-                </label>
-
-                {/* Existing files */}
-                {existingFiles.length > 0 && (
-                  <div className="mb-2">
-                    <div className="text-xs text-neutral-400 mb-1">
-                      فایل‌های موجود:
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {existingFiles.map((fileUrl, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-1 bg-neutral-700/50 px-2 py-1 rounded text-xs"
-                        >
-                          <a
-                            href={fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300"
-                          >
-                            📎 فایل {idx + 1}
-                          </a>
-                          <button
-                            onClick={() => removeExistingFile(idx)}
-                            className="text-red-400 hover:text-red-300 ml-1"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleResultFileChange}
-                  className="w-full px-3 py-2 bg-neutral-800 border border-[#5271ff]/20 rounded text-sm text-neutral-200"
-                />
-                {resultFilePreviews.length > 0 && (
-                  <div className="mt-2 flex gap-2 flex-wrap">
-                    {resultFilePreviews.map((preview, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center gap-1 bg-neutral-700/50 px-2 py-1 rounded text-xs"
-                      >
-                        <span className="text-neutral-400">
-                          📎 {preview.name}
-                        </span>
-                        <button
-                          onClick={() => removeNewFile(idx)}
-                          className="text-red-400 hover:text-red-300 ml-1"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Row 8: Is Final Checkbox */}
-              <div className="flex items-center gap-3 bg-neutral-800/50 border border-[#5271ff]/20 rounded p-3">
-                <input
-                  type="checkbox"
-                  id="is_final"
-                  checked={resultForm.is_final}
-                  onChange={(e) =>
-                    setResultForm((prev) => ({
-                      ...prev,
-                      is_final: e.target.checked,
-                    }))
-                  }
-                  className="w-5 h-5"
-                />
-                <label
-                  htmlFor="is_final"
-                  className="text-sm text-neutral-300 cursor-pointer"
-                >
-                  نهایی کردن{" "}
-                </label>
-              </div>
-
-              {/* Info Box */}
-              <div className="bg-blue-900/20 border border-blue-500/50 rounded p-3">
-                <div className="text-xs text-blue-300">
-                  💡 تمام فیلدها اختیاری هستند به جز <strong>مقدار جواب</strong>{" "}
-                  و <strong>تاریخ آزمون</strong>
-                </div>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-neutral-700 sticky bottom-0 bg-neutral-900">
-              <button
-                onClick={() => {
-                  setShowResultModal(false);
-                  setEditingResult(null);
+          {/* Backdrop */}
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.85)",
+              backdropFilter: "blur(8px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 50,
+              padding: 16,
+              overflowY: "auto",
+              fontFamily: "'Vazirmatn', sans-serif",
+            }}
+          >
+            {/* Modal */}
+            <div
+              style={{
+                background:
+                  "linear-gradient(160deg, #141418 0%, #0f0f13 50%, #12121a 100%)",
+                border: "1px solid rgba(82,113,255,0.2)",
+                borderRadius: 20,
+                width: "100%",
+                maxWidth: 760,
+                margin: "auto",
+                overflow: "hidden",
+                boxShadow:
+                  "0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 1px 0 rgba(82,113,255,0.3) inset",
+                animation:
+                  "fadeSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
+                direction: "rtl",
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  padding: "22px 28px 18px",
+                  borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  background:
+                    "linear-gradient(90deg, rgba(82,113,255,0.08), transparent)",
+                  position: "relative",
+                  overflow: "hidden",
                 }}
-                disabled={loading}
-                className="px-4 py-2 bg-neutral-700 text-neutral-200 rounded hover:bg-neutral-600 disabled:opacity-50"
               >
-                انصراف
-              </button>
-              <button
-                onClick={handleSaveResult}
-                disabled={
-                  loading || !resultForm.result_value || !resultForm.test_date
-                }
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    right: 0,
+                    left: 0,
+                    height: 1,
+                    background:
+                      "linear-gradient(90deg, transparent, rgba(82,113,255,0.6), transparent)",
+                  }}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 12 }}
+                  >
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background:
+                          "linear-gradient(135deg, #5271ff22, #5271ff44)",
+                        border: "1px solid #5271ff44",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 18,
+                        boxShadow: "0 4px 12px rgba(82,113,255,0.2)",
+                      }}
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    در حال ذخیره...
-                  </>
-                ) : editingResult.id ? (
-                  "ذخیره تغییرات"
-                ) : (
-                  "افزودن جواب"
-                )}
-              </button>
+                      🧪
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "#5271ff",
+                          fontWeight: 700,
+                          letterSpacing: 1,
+                          textTransform: "uppercase",
+                          marginBottom: 3,
+                        }}
+                      >
+                        {editingResult.id ? "ویرایش نتیجه" : "افزودن نتیجه"}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 17,
+                          fontWeight: 800,
+                          color: "#f3f4f6",
+                        }}
+                      >
+                        {editingResult.test_title}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Pre-fetched info chips in header area */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <InfoChip
+                      label="واحد اندازه‌گیری"
+                      value={editingResult.test_measurement_unit}
+                    />
+                    <InfoChip
+                      label="استاندارد"
+                      value={editingResult.standard_title}
+                    />
+                    <InfoChip
+                      label="تاریخ آزمون"
+                      value={new Date(resultForm.test_date).toLocaleDateString(
+                        "fa-IR",
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div
+                style={{
+                  padding: "24px 28px",
+                  overflowY: "auto",
+                  maxHeight: "calc(90vh - 180px)",
+                }}
+              >
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 20 }}
+                >
+                  {/* Row 1: Main fields */}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                    }}
+                  >
+                    <BevelInput
+                      label="مقدار جواب"
+                      required
+                      value={resultForm.result_value}
+                      onChange={(e) =>
+                        setResultForm((p) => ({
+                          ...p,
+                          result_value: e.target.value,
+                        }))
+                      }
+                      placeholder="مثال: 25.5"
+                    />
+                    <BevelInput
+                      label="عدم قطعیت"
+                      value={resultForm.uncertainty}
+                      onChange={(e) =>
+                        setResultForm((p) => ({
+                          ...p,
+                          uncertainty: e.target.value,
+                        }))
+                      }
+                      placeholder="مثال: ±0.5"
+                    />
+                  </div>
+
+                  {/* Row 2 */}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                    }}
+                  >
+                    <BevelInput
+                      label="محدوده پذیرش"
+                      value={resultForm.acceptance_range}
+                      onChange={(e) =>
+                        setResultForm((p) => ({
+                          ...p,
+                          acceptance_range: e.target.value,
+                        }))
+                      }
+                      placeholder="مثال: 20-30"
+                    />
+                    <BevelInput
+                      label="اظهار انطباق"
+                      value={resultForm.declaration_of_conformity}
+                      onChange={(e) =>
+                        setResultForm((p) => ({
+                          ...p,
+                          declaration_of_conformity: e.target.value,
+                        }))
+                      }
+                      placeholder="مثال: منطبق، غیرمنطبق"
+                    />
+                  </div>
+
+                  {/* Row 3: Textareas */}
+                  <BevelTextarea
+                    label="شرح مشاهدات"
+                    value={resultForm.observations}
+                    onChange={(e) =>
+                      setResultForm((p) => ({
+                        ...p,
+                        observations: e.target.value,
+                      }))
+                    }
+                    placeholder="توضیحات ..."
+                    rows={3}
+                  />
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 16,
+                    }}
+                  >
+                    <BevelInput
+                      label="شرایط محیطی"
+                      value={resultForm.environmental_conditions}
+                      onChange={(e) =>
+                        setResultForm((p) => ({
+                          ...p,
+                          environmental_conditions: e.target.value,
+                        }))
+                      }
+                      placeholder="مثال: دمای ۲۳°C، رطوبت ۵۰٪"
+                    />
+                    {/* <BevelInput
+                      label="توضیحات"
+                      value={resultForm.observations}
+                      onChange={(e) =>
+                        setResultForm((p) => ({
+                          ...p,
+                          observations: e.target.value,
+                        }))
+                      }
+                      placeholder="یادداشت‌های اضافی..."
+                    /> */}
+                  </div>
+
+                  {/* Divider */}
+                  <div
+                    style={{
+                      height: 1,
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(82,113,255,0.2), transparent)",
+                    }}
+                  />
+
+                  {/* Pass/Fail Toggle */}
+                  <PassFailToggle
+                    value={resultForm.passed}
+                    onChange={(v) =>
+                      setResultForm((p) => ({ ...p, passed: v }))
+                    }
+                  />
+
+                  {/* Divider */}
+                  <div
+                    style={{
+                      height: 1,
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(82,113,255,0.2), transparent)",
+                    }}
+                  />
+
+                  {/* File Upload */}
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "#9ca3af",
+                        marginBottom: 10,
+                        fontFamily: "'Vazirmatn', sans-serif",
+                      }}
+                    >
+                      فایل‌های ضمیمه
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "#4b5563",
+                          fontWeight: 500,
+                          marginRight: 6,
+                        }}
+                      >
+                        (اختیاری)
+                      </span>
+                    </label>
+
+                    {existingFiles.length > 0 && (
+                      <div style={{ marginBottom: 10 }}>
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "#4b5563",
+                            marginBottom: 6,
+                            fontFamily: "'Vazirmatn', sans-serif",
+                          }}
+                        >
+                          فایل‌های موجود:
+                        </div>
+                        <div
+                          style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                        >
+                          {existingFiles.map((f, i) => (
+                            <div
+                              key={i}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                background: "rgba(82,113,255,0.08)",
+                                border: "1px solid rgba(82,113,255,0.2)",
+                                borderRadius: 8,
+                                padding: "6px 12px",
+                              }}
+                            >
+                              <a
+                                href={f}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  color: "#818cf8",
+                                  fontSize: 12,
+                                  fontFamily: "'Vazirmatn', sans-serif",
+                                  textDecoration: "none",
+                                }}
+                              >
+                                📎 فایل {i + 1}
+                              </a>
+                              <button
+                                onClick={() => removeExistingFile(idx)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#ef4444",
+                                  cursor: "pointer",
+                                  fontSize: 12,
+                                }}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div
+                      style={{
+                        borderRadius: 12,
+                        background: "linear-gradient(145deg, #111, #1c1c1c)",
+                        border: "1.5px dashed rgba(82,113,255,0.25)",
+                        boxShadow:
+                          "4px 4px 10px rgba(0,0,0,0.4), -1px -1px 0 rgba(255,255,255,0.04) inset",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <input
+                        type="file"
+                        multiple
+                        onChange={handleResultFileChange}
+                        style={{
+                          width: "100%",
+                          padding: "12px 14px",
+                          background: "transparent",
+                          border: "none",
+                          color: "#6b7280",
+                          fontSize: 13,
+                          fontFamily: "'Vazirmatn', sans-serif",
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
+
+                    {resultFilePreviews.length > 0 && (
+                      <div
+                        style={{
+                          marginTop: 8,
+                          display: "flex",
+                          gap: 8,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {resultFilePreviews.map((f, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              background: "rgba(34,197,94,0.08)",
+                              border: "1px solid rgba(34,197,94,0.2)",
+                              borderRadius: 8,
+                              padding: "6px 12px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 12,
+                                color: "#86efac",
+                                fontFamily: "'Vazirmatn', sans-serif",
+                              }}
+                            >
+                              📎 {f.name}
+                            </span>
+                            <button
+                              onClick={() => removeNewFile(i)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#ef4444",
+                                cursor: "pointer",
+                                fontSize: 12,
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info box */}
+                  <div
+                    style={{
+                      background:
+                        "linear-gradient(135deg, rgba(82,113,255,0.06), rgba(82,113,255,0.02))",
+                      border: "1px solid rgba(82,113,255,0.15)",
+                      borderRadius: 10,
+                      padding: "10px 14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    <span style={{ fontSize: 14 }}>💡</span>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: "#6b7280",
+                        fontFamily: "'Vazirmatn', sans-serif",
+                      }}
+                    >
+                      تمام فیلدها اختیاری هستند به جز{" "}
+                      <strong style={{ color: "#818cf8" }}>مقدار جواب</strong> و{" "}
+                      <strong style={{ color: "#818cf8" }}>تاریخ آزمون</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div
+                style={{
+                  padding: "16px 28px",
+                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  background:
+                    "linear-gradient(90deg, rgba(82,113,255,0.04), transparent)",
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  gap: 12,
+                }}
+              >
+                <button
+                  onClick={handleSaveResult}
+                  disabled={loading || !resultForm.result_value}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "11px 28px",
+                    borderRadius: 12,
+                    border: "none",
+                    cursor:
+                      loading || !resultForm.result_value
+                        ? "not-allowed"
+                        : "pointer",
+                    background:
+                      loading || !resultForm.result_value
+                        ? "linear-gradient(135deg, #1f2937, #111827)"
+                        : "linear-gradient(135deg, #22c55e, #16a34a)",
+                    color:
+                      loading || !resultForm.result_value ? "#4b5563" : "#fff",
+                    fontSize: 14,
+                    fontWeight: 800,
+                    fontFamily: "'Vazirmatn', sans-serif",
+                    boxShadow:
+                      loading || !resultForm.result_value
+                        ? "none"
+                        : "0 6px 20px rgba(34,197,94,0.35), 0 1px 0 rgba(255,255,255,0.2) inset, 0 -2px 0 rgba(0,0,0,0.3) inset",
+                    transform:
+                      loading || !resultForm.result_value
+                        ? "none"
+                        : "translateY(0)",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading && resultForm.result_value)
+                      e.target.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "translateY(0)";
+                  }}
+                >
+                  {loading ? (
+                    <>
+                      <svg
+                        style={{
+                          animation: "spin 1s linear infinite",
+                          width: 16,
+                          height: 16,
+                        }}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          style={{ opacity: 0.25 }}
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                          style={{ opacity: 0.75 }}
+                        />
+                      </svg>
+                      در حال ذخیره...
+                    </>
+                  ) : editingResult.id ? (
+                    "ذخیره تغییرات"
+                  ) : (
+                    "افزودن جواب"
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowResultModal(false);
+                    setEditingResult(null);
+                  }}
+                  disabled={loading}
+                  style={{
+                    padding: "11px 22px",
+                    borderRadius: 12,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    cursor: "pointer",
+                    background: "linear-gradient(145deg, #1a1a1a, #141414)",
+                    color: "#9ca3af",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    fontFamily: "'Vazirmatn', sans-serif",
+                    boxShadow:
+                      "4px 4px 10px rgba(0,0,0,0.4), -1px -1px 0 rgba(255,255,255,0.04) inset",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  انصراف
+                </button>
+              </div>
             </div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
-        </div>
+        </>
       )}
     </>
   );

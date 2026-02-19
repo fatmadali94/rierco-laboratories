@@ -44,6 +44,17 @@ const TestsManagement = () => {
     standard_ids: [],
   });
 
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
+
   // Load data on mount
   useEffect(() => {
     dispatch(fetchTests({ page: 1, limit: 50 }));
@@ -155,7 +166,7 @@ const TestsManagement = () => {
           updateTest({
             testId: selectedTest.id,
             updates: testData,
-          })
+          }),
         ).unwrap();
       }
 
@@ -252,7 +263,7 @@ const TestsManagement = () => {
                   >
                     <div className="font-medium">{test.title}</div>
                     <div className="text-xs text-neutral-400 mt-1">
-                      {test.code} - {test.base_price.toLocaleString()} تومان
+                      {test.code} - {formatCurrency(test.base_price)} ریال
                     </div>
                   </li>
                 ))}
@@ -343,7 +354,7 @@ const TestsManagement = () => {
               <label
                 className={`absolute right-3 rounded-md bg-black px-1 text-xs text-white transition-all pointer-events-none ${formData.base_price ? "top-0 -translate-y-1/2 text-xs text-white" : "top-1/2 -translate-y-1/2 peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs"}`}
               >
-                قیمت پایه (تومان) *
+                قیمت پایه (ریال) *
               </label>
             </div>
 
@@ -507,7 +518,7 @@ const TestsManagement = () => {
                       {test.code || "-"}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-white">
-                      {test.base_price.toLocaleString()} تومان
+                      {formatCurrency(test.base_price)} ریال
                     </td>
                     <td className="px-6 py-4">
                       <span

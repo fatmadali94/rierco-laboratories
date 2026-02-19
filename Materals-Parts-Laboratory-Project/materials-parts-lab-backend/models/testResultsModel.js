@@ -12,7 +12,6 @@ export const createTestResult = async (resultData) => {
     record_id,
     record_test_id, // This is the record_tests.id
     result_value,
-    result_unit,
     uncertainty,
     acceptance_range,
     declaration_of_conformity,
@@ -20,7 +19,7 @@ export const createTestResult = async (resultData) => {
     observations,
     environmental_conditions,
     result_files,
-    is_final,
+    passed,
     test_date,
   } = resultData;
 
@@ -29,7 +28,6 @@ export const createTestResult = async (resultData) => {
       record_id,
       record_test_id,
       result_value,
-      result_unit,
       uncertainty,
       acceptance_range,
       declaration_of_conformity,
@@ -37,9 +35,9 @@ export const createTestResult = async (resultData) => {
       observations,
       environmental_conditions,
       result_files,
-      is_final,
+      passed,
       test_date
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING *
   `;
 
@@ -47,7 +45,6 @@ export const createTestResult = async (resultData) => {
     record_id,
     record_test_id, // This is record_tests.id
     result_value,
-    result_unit || null,
     uncertainty || null,
     acceptance_range || null,
     declaration_of_conformity || null,
@@ -55,7 +52,7 @@ export const createTestResult = async (resultData) => {
     observations || null,
     environmental_conditions || null,
     result_files || null,
-    is_final || false,
+    passed || null,
     test_date,
   ];
 
@@ -72,10 +69,13 @@ export const getTestResultsByRecordId = async (recordId) => {
       tr.*,
       rt.test_id,
       t.title as test_title,
+      s.title as standard_title,
+      t.measurement_unit as test_measurement_unit,
       t.code as test_code
     FROM test_results tr
     LEFT JOIN record_tests rt ON tr.record_test_id = rt.id
     LEFT JOIN tests t ON rt.test_id = t.id
+    LEFT JOIN standards s ON rt.standard_id = s.id
     WHERE tr.record_id = $1
     ORDER BY tr.created_at DESC
   `;
@@ -93,6 +93,7 @@ export const getTestResultsByRecordTestId = async (recordTestId) => {
       tr.*,
       rt.test_id,
       t.title as test_title,
+      t.measurement_unit as test_measurement_unit,
       t.code as test_code
     FROM test_results tr
     LEFT JOIN record_tests rt ON tr.record_test_id = rt.id
@@ -115,6 +116,7 @@ export const getTestResultById = async (resultId) => {
       rt.test_id,
       rt.record_id,
       t.title as test_title,
+      t.measurement_unit as test_measurement_unit,
       t.code as test_code
     FROM test_results tr
     LEFT JOIN record_tests rt ON tr.record_test_id = rt.id
@@ -132,7 +134,6 @@ export const getTestResultById = async (resultId) => {
 export const updateTestResult = async (resultId, updateData) => {
   const {
     result_value,
-    result_unit,
     uncertainty,
     acceptance_range,
     declaration_of_conformity,
@@ -140,7 +141,7 @@ export const updateTestResult = async (resultId, updateData) => {
     observations,
     environmental_conditions,
     result_files,
-    is_final,
+    passed,
     test_date,
   } = updateData;
 
@@ -148,7 +149,6 @@ export const updateTestResult = async (resultId, updateData) => {
     UPDATE test_results
     SET 
       result_value = COALESCE($1, result_value),
-      result_unit = COALESCE($2, result_unit),
       uncertainty = COALESCE($3, uncertainty),
       acceptance_range = COALESCE($4, acceptance_range),
       declaration_of_conformity = COALESCE($5, declaration_of_conformity),
@@ -156,7 +156,7 @@ export const updateTestResult = async (resultId, updateData) => {
       observations = COALESCE($7, observations),
       environmental_conditions = COALESCE($8, environmental_conditions),
       result_files = COALESCE($9, result_files),
-      is_final = COALESCE($10, is_final),
+      passed = COALESCE($10, passed),
       test_date = COALESCE($11, test_date),
       updated_at = CURRENT_TIMESTAMP
     WHERE id = $12
@@ -165,7 +165,6 @@ export const updateTestResult = async (resultId, updateData) => {
 
   const values = [
     result_value,
-    result_unit,
     uncertainty,
     acceptance_range,
     declaration_of_conformity,
@@ -173,7 +172,7 @@ export const updateTestResult = async (resultId, updateData) => {
     observations,
     environmental_conditions,
     result_files,
-    is_final,
+    passed,
     test_date,
     resultId,
   ];
@@ -217,7 +216,7 @@ export const getFinalResultsCount = async (recordId) => {
   const query = `
     SELECT COUNT(*) as final_count
     FROM test_results
-    WHERE record_id = $1 AND is_final = true
+    WHERE record_id = $1 AND passed = true
   `;
 
   const result = await pool.query(query, [recordId]);
@@ -233,6 +232,7 @@ export const getResultsWithTestInfo = async (recordId) => {
       tr.*,
       rt.test_id,
       t.title as test_title,
+      t.measurement_unit as test_measurement_unit,
       t.code as test_code,
       s.code as standard_code,
       s.title as standard_title

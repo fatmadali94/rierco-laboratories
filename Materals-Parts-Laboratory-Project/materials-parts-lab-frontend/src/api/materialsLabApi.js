@@ -22,7 +22,7 @@ materialsLabApi.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - Handle errors globally
@@ -65,14 +65,14 @@ materialsLabApi.interceptors.response.use(
         status: null,
       });
     }
-  }
+  },
 );
 
 // Helper function for file uploads (multipart/form-data)
 export const createFormDataRequest = (
   data,
   files,
-  fileFieldName = "sample_images"
+  fileFieldName = "sample_images",
 ) => {
   const formData = new FormData();
 

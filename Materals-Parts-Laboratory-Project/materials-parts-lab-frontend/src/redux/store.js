@@ -9,6 +9,7 @@ import samplesReducer from "./samples/samplesSlice.js";
 import paymentsReducer from "./payments/paymentsSlice.js";
 import testResultsReducer from "./tests/testResultsSlice.js";
 import financialInvoicesReducer from "./financialInvoice/financialInvoicesSlice.js";
+import pdfReducer from "./pdfGeneration/pdfSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     payments: paymentsReducer,
     testResults: testResultsReducer,
     financialInvoices: financialInvoicesReducer,
+    pdf: pdfReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -32,6 +34,8 @@ export const store = configureStore({
           "records/create/fulfilled",
           "samples/addImages/pending",
           "samples/addImages/fulfilled",
+          "pdf/generateSingle/fulfilled",
+          "pdf/generateMultiple/fulfilled",
         ],
         // Ignore these paths in the state
         ignoredPaths: ["records.files", "samples.files"],

@@ -23,6 +23,9 @@ import testRoutes from "./routes/testRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import testResultsRoutes from "./routes/testResultsRoutes.js";
 import financialInvoicesRoutes from "./routes/financialInvoicesRoutes.js";
+// import chatRoutes from "./routes/chatRoutes.js";
+import pdfRoutes from "./routes/pdfRoutes.js";
+import { initializePersianText } from "./utils/persianText.js";
 
 const app = express();
 
@@ -37,10 +40,13 @@ app.use(
     ],
 
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
+
+await initializePersianText();
+console.log("Persian text support initialized");
 
 app.use("/api/customers", customersRoutes);
 app.use("/api/invoices", invoiceRoutes);
@@ -52,7 +58,8 @@ app.use("/api/tests", testRoutes);
 app.use("/api", paymentRoutes);
 app.use("/api/test-results", testResultsRoutes);
 app.use("/api/financial-invoices", financialInvoicesRoutes);
-app.use("/api/chats");
+// app.use("/api/chats", chatRoutes);
+app.use("/api", pdfRoutes);
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

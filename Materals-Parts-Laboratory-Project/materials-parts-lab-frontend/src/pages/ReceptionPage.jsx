@@ -8,6 +8,7 @@ import React, { useState } from "react";
 import CreateOrderForm from "../components/reception/CreateOrderForm";
 import RecordsList from "../components/reception/RecordsList";
 import InvoicesList from "../components/reception/InvoicesList";
+import Results from "../components/reception/Results";
 
 const ReceptoryPage = () => {
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ const ReceptoryPage = () => {
   const tabs = [
     { id: "create", label: "ایجاد سفارش جدید", icon: "📝" },
     { id: "records", label: "رکوردها", icon: "📋" },
+    { id: "results", label: "نتایج", icon: "✅" },
     { id: "invoices", label: "فاکتورها", icon: "💳" },
   ];
 
@@ -74,6 +76,7 @@ const ReceptoryPage = () => {
       <div className=" bg-black border rounded-lg p-6">
         {activeTab === "create" && <CreateOrderForm />}
         {activeTab === "records" && <RecordsList />}
+        {activeTab === "results" && <Results />}
         {activeTab === "invoices" && <InvoicesList />}
       </div>
     </div>

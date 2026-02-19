@@ -30,7 +30,7 @@ export async function createTest(data) {
       data.description || null,
       data.financial_year,
       data.is_active !== undefined ? data.is_active : true,
-    ]
+    ],
   );
 
   const test = result.rows[0];
@@ -44,7 +44,7 @@ export async function createTest(data) {
         VALUES ($1, $2, $3)
         ON CONFLICT (test_id, standard_id) DO NOTHING
       `,
-        [test.id, data.standard_ids[i], i === 0]
+        [test.id, data.standard_ids[i], i === 0],
       ); // First one is primary
     }
   }
@@ -83,7 +83,7 @@ export async function getAllTests(filters = {}) {
 
   if (search) {
     conditions.push(
-      `(t.title ILIKE $${paramCount} OR t.code ILIKE $${paramCount})`
+      `(t.title ILIKE $${paramCount} OR t.code ILIKE $${paramCount})`,
     );
     params.push(`%${search}%`);
     paramCount++;
@@ -99,7 +99,7 @@ export async function getAllTests(filters = {}) {
     FROM tests t
     ${whereClause}
   `,
-    params
+    params,
   );
 
   const total = parseInt(countResult.rows[0].total);
@@ -123,7 +123,7 @@ export async function getAllTests(filters = {}) {
     ORDER BY t.title
     LIMIT $${paramCount} OFFSET $${paramCount + 1}
   `,
-    params
+    params,
   );
 
   return {
@@ -151,7 +151,7 @@ export async function getTestById(testId) {
     WHERE t.id = $1
     GROUP BY t.id
   `,
-    [testId]
+    [testId],
   );
 
   if (result.rows.length === 0) {
@@ -171,7 +171,7 @@ export async function getTestById(testId) {
     WHERE ts.test_id = $1
     ORDER BY ts.is_primary DESC, s.code
   `,
-    [testId]
+    [testId],
   );
 
   test.standards = standardsResult.rows;
@@ -218,7 +218,7 @@ export async function updateTest(testId, updates) {
         SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
         WHERE id = $${valueCount}
       `,
-        updateValues
+        updateValues,
       );
     }
 
@@ -237,7 +237,7 @@ export async function updateTest(testId, updates) {
             INSERT INTO test_standards (test_id, standard_id, is_primary)
             VALUES ($1, $2, $3)
           `,
-            [testId, updates.standard_ids[i], i === 0]
+            [testId, updates.standard_ids[i], i === 0],
           );
         }
       }
@@ -270,12 +270,12 @@ export async function deleteTest(testId) {
       FROM record_tests
       WHERE test_id = $1
     `,
-      [testId]
+      [testId],
     );
 
     if (parseInt(hasRecords.rows[0].count) > 0) {
       throw new Error(
-        "Cannot delete test that is used in records. Consider deactivating instead."
+        "Cannot delete test that is used in records. Consider deactivating instead.",
       );
     }
 
@@ -310,7 +310,7 @@ export async function searchTests(searchTerm) {
     ORDER BY t.title
     LIMIT 20
   `,
-    [`%${searchTerm}%`]
+    [`%${searchTerm}%`],
   );
 
   return result.rows;
@@ -368,7 +368,7 @@ export async function createStandard(data) {
       data.organization || null,
       data.year || null,
       data.is_active !== undefined ? data.is_active : true,
-    ]
+    ],
   );
 
   return result.rows[0];
@@ -405,7 +405,7 @@ export async function getAllStandards(filters = {}) {
 
   if (search) {
     conditions.push(
-      `(s.code ILIKE $${paramCount} OR s.title ILIKE $${paramCount})`
+      `(s.code ILIKE $${paramCount} OR s.title ILIKE $${paramCount})`,
     );
     params.push(`%${search}%`);
     paramCount++;
@@ -421,7 +421,7 @@ export async function getAllStandards(filters = {}) {
     FROM standards s
     ${whereClause}
   `,
-    params
+    params,
   );
 
   const total = parseInt(countResult.rows[0].total);
@@ -444,7 +444,7 @@ export async function getAllStandards(filters = {}) {
     ORDER BY s.code
     LIMIT $${paramCount} OFFSET $${paramCount + 1}
   `,
-    params
+    params,
   );
 
   return {
@@ -474,7 +474,7 @@ export async function getStandardById(standardId) {
     WHERE s.id = $1
     GROUP BY s.id
   `,
-    [standardId]
+    [standardId],
   );
 
   if (result.rows.length === 0) {
@@ -496,7 +496,7 @@ export async function getStandardById(standardId) {
     WHERE ts.standard_id = $1
     ORDER BY t.title
   `,
-    [standardId]
+    [standardId],
   );
 
   standard.tests = testsResult.rows;
@@ -541,7 +541,7 @@ export async function updateStandard(standardId, updates) {
     SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP
     WHERE id = $${valueCount}
   `,
-    updateValues
+    updateValues,
   );
 
   return await getStandardById(standardId);
@@ -563,12 +563,12 @@ export async function deleteStandard(standardId) {
         (SELECT COUNT(*) FROM test_standards WHERE standard_id = $1) +
         (SELECT COUNT(*) FROM record_tests WHERE standard_id = $1) as count
     `,
-      [standardId]
+      [standardId],
     );
 
     if (parseInt(isUsed.rows[0].count) > 0) {
       throw new Error(
-        "Cannot delete standard that is in use. Consider deactivating instead."
+        "Cannot delete standard that is in use. Consider deactivating instead.",
       );
     }
 
@@ -602,7 +602,7 @@ export async function searchStandards(searchTerm) {
     ORDER BY s.code
     LIMIT 20
   `,
-    [`%${searchTerm}%`]
+    [`%${searchTerm}%`],
   );
 
   return result.rows;
@@ -641,7 +641,7 @@ export async function getStandardsForTest(testId) {
     WHERE ts.test_id = $1
     ORDER BY ts.is_primary DESC, s.code
   `,
-    [testId]
+    [testId],
   );
 
   return result.rows;
@@ -653,7 +653,7 @@ export async function getStandardsForTest(testId) {
 export async function linkStandardToTest(
   testId,
   standardId,
-  isPrimary = false
+  isPrimary = false,
 ) {
   await pool.query(
     `
@@ -662,7 +662,7 @@ export async function linkStandardToTest(
     ON CONFLICT (test_id, standard_id) 
     DO UPDATE SET is_primary = $3
   `,
-    [testId, standardId, isPrimary]
+    [testId, standardId, isPrimary],
   );
 
   return { success: true };
@@ -677,7 +677,7 @@ export async function unlinkStandardFromTest(testId, standardId) {
     DELETE FROM test_standards
     WHERE test_id = $1 AND standard_id = $2
   `,
-    [testId, standardId]
+    [testId, standardId],
   );
 
   return { success: true };

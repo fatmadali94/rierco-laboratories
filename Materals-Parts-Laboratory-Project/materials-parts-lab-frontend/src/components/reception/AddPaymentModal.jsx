@@ -25,6 +25,17 @@ const AddPaymentModal = ({ invoice, onClose }) => {
     return convertGregorianToJalali(todayISO);
   };
 
+  //with no decimals
+  const formatCurrency = (amount) => {
+    if (!amount && amount !== 0) return "0";
+
+    return new Intl.NumberFormat("fa-IR", {
+      style: "decimal", // Changed from "currency"
+      minimumFractionDigits: 0, // No decimals
+      maximumFractionDigits: 0, // No decimals
+    }).format(amount);
+  };
+
   const [formData, setFormData] = useState({
     amount: invoice.amount_remaining,
     payment_method: "card",
@@ -96,7 +107,7 @@ const AddPaymentModal = ({ invoice, onClose }) => {
           invoiceId: invoice.id,
           paymentData: formData,
           files: selectedFiles,
-        })
+        }),
       ).unwrap();
 
       // Refresh data
@@ -141,7 +152,7 @@ const AddPaymentModal = ({ invoice, onClose }) => {
           {/* Amount */}
           <div>
             <label className="block text-sm text-right text-neutral-300 mb-2">
-              مبلغ پرداخت (تومان) *
+              مبلغ پرداخت () *
             </label>
             <input
               type="number"
@@ -154,7 +165,7 @@ const AddPaymentModal = ({ invoice, onClose }) => {
               required
             />
             <div className="text-xs text-neutral-500 mt-1">
-              مانده: {invoice.amount_remaining?.toLocaleString()} تومان
+              مانده: {formatCurrency(invoice.amount_remaining)} ریال
             </div>
           </div>
 
