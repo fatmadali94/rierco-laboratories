@@ -1,0 +1,199 @@
+version: '3.8'
+
+# ============================================
+# Docker Compose for PRODUCTION
+# This will REPLACE the old project after testing
+# Uses existing VPS PostgreSQL databases
+# ============================================
+
+services:
+  # ============================================
+  # Auth Service (Shared)
+  # ============================================
+  auth-service:
+    build:
+      context: ./Shared/auth-service
+      dockerfile: Dockerfile
+    container_name: rierco-auth-service
+    restart: unless-stopped
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_USER=tireLab
+      - DB_PASSWORD=radikal4
+      - DB_NAME=tire_laboratory
+      - PORT=3005
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
+    ports:
+      - "3005:3005"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - rierco-network
+
+  # ============================================
+  # Chat Service (Shared)
+  # ============================================
+  chat-service:
+    build:
+      context: ./Shared/chat-service
+      dockerfile: Dockerfile
+    container_name: rierco-chat-service
+    restart: unless-stopped
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_USER=tireLab
+      - DB_PASSWORD=radikal4
+      - DB_NAME=tire_laboratory
+      - PORT=3006
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=http://auth-service:3005
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
+    ports:
+      - "3006:3006"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - auth-service
+    networks:
+      - rierco-network
+
+  # ============================================
+  # Materials Lab Backend
+  # ============================================
+  materials-backend:
+    build:
+      context: ./Materals-Parts-Laboratory-Project/materials-parts-lab-backend
+      dockerfile: Dockerfile
+    container_name: rierco-materials-backend
+    restart: unless-stopped
+    environment:
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_USER=tireLab
+      - DB_PASSWORD=radikal4
+      - DB_NAME=tire_laboratory
+      - MATERIALS_DB_HOST=host.docker.internal
+      - MATERIALS_DB_PORT=5432
+      - MATERIALS_DB_USER=tireLab
+      - MATERIALS_DB_PASSWORD=radikal4
+      - MATERIALS_DB_NAME=materials_parts_laboratory
+      - PORT=3002
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
+    ports:
+      - "3002:3002"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - auth-service
+    networks:
+      - rierco-network
+
+  # ============================================
+  # Tire Lab Backend
+  # ============================================
+  tire-backend:
+    build:
+      context: ./Tire-Laboratory-Project/tire-lab-backend
+      dockerfile: Dockerfile
+    container_name: rierco-tire-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=5050
+      - PGHOST=host.docker.internal
+      - PGUSER=tireLab
+      - PGPASSWORD=radikal4
+      - PGDATABASE=tire_laboratory
+      - PGPORT=5432
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
+    ports:
+      - "5050:5050"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - auth-service
+    networks:
+      - rierco-network
+
+  # ============================================
+  # Auth Frontend
+  # ============================================
+  auth-frontend:
+    build:
+      context: ./Shared/auth-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_AUTH_URL=https://authserver.rierco.net/auth
+        - VITE_TIRE_LAB_URL=https://tire.rierco.net
+        - VITE_MATERIALS_LAB_URL=https://lab.rierco.net
+    container_name: rierco-auth-frontend
+    restart: unless-stopped
+    ports:
+      - "3010:80"
+    networks:
+      - rierco-network
+
+  # ============================================
+  # Materials Lab Frontend
+  # ============================================
+  materials-frontend:
+    build:
+      context: ./Materals-Parts-Laboratory-Project/materials-parts-lab-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BASE_URL=https://labserver.rierco.net/api
+        - VITE_AUTH_URL=https://authserver.rierco.net/auth
+        - VITE_AUTH_PORTAL_URL=https://auth.rierco.net
+        - VITE_CHAT_URL=https://chatservice.rierco.net
+        - VITE_CURRENT_SYSTEM=materials
+    container_name: rierco-materials-frontend
+    restart: unless-stopped
+    ports:
+      - "3011:80"
+    networks:
+      - rierco-network
+
+  # ============================================
+  # Tire Lab Frontend
+  # ============================================
+  tire-frontend:
+    build:
+      context: ./Tire-Laboratory-Project/tire-lab-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BASE_URL=https://tireserver.rierco.net/api
+        - VITE_AUTH_URL=https://authserver.rierco.net/auth
+        - VITE_AUTH_PORTAL_URL=https://auth.rierco.net
+        - VITE_CHAT_URL=https://chatservice.rierco.net
+        - VITE_CURRENT_SYSTEM=tire
+    container_name: rierco-tire-frontend
+    restart: unless-stopped
+    ports:
+      - "3012:80"
+    networks:
+      - rierco-network
+
+networks:
+  rierco-network:
+    driver: bridge
