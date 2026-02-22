@@ -3,15 +3,26 @@
 # Use this for: auth-frontend, materials-frontend, tire-frontend
 # ============================================
 
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
+
+# Configure npm for better connectivity in restricted networks
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set strict-ssl false && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 5
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (handle missing package-lock.json and peer dep conflicts)
+RUN if [ -f "package-lock.json" ]; then \
+      npm ci --legacy-peer-deps; \
+    else \
+      npm install --legacy-peer-deps; \
+    fi
 
 # Copy source code
 COPY . .

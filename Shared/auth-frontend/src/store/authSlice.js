@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const AUTH_URL = `${import.meta.env.VITE_AUTH_URL}/auth`;
+const AUTH_URL = import.meta.env.VITE_AUTH_URL;
 
 // Login user
 export const loginUser = createAsyncThunk(

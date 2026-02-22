@@ -2,8 +2,9 @@ version: '3.8'
 
 # ============================================
 # Docker Compose for PRODUCTION
-# This will REPLACE the old project after testing
-# Uses existing VPS PostgreSQL databases
+# Uses HOST NETWORK MODE (same as old working project)
+# Connects to VPS PostgreSQL directly via localhost
+# Configured for domain access with HTTPS
 # ============================================
 
 services:
@@ -16,8 +17,9 @@ services:
       dockerfile: Dockerfile
     container_name: rierco-auth-service
     restart: unless-stopped
+    network_mode: "host"
     environment:
-      - DB_HOST=host.docker.internal
+      - DB_HOST=localhost
       - DB_PORT=5432
       - DB_USER=tireLab
       - DB_PASSWORD=radikal4
@@ -29,13 +31,7 @@ services:
       - CLOUDINARY_CLOUD_NAME=dflapbzi9
       - CLOUDINARY_API_KEY=758797596463665
       - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
-      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
-    ports:
-      - "3005:3005"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - rierco-network
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net,http://tire.rierco.net,http://lab.rierco.net,http://auth.rierco.net
 
   # ============================================
   # Chat Service (Shared)
@@ -46,8 +42,9 @@ services:
       dockerfile: Dockerfile
     container_name: rierco-chat-service
     restart: unless-stopped
+    network_mode: "host"
     environment:
-      - DB_HOST=host.docker.internal
+      - DB_HOST=localhost
       - DB_PORT=5432
       - DB_USER=tireLab
       - DB_PASSWORD=radikal4
@@ -55,19 +52,11 @@ services:
       - PORT=3006
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET}
-      - AUTH_SERVICE_URL=http://auth-service:3005
+      - AUTH_SERVICE_URL=http://localhost:3005
       - CLOUDINARY_CLOUD_NAME=dflapbzi9
       - CLOUDINARY_API_KEY=758797596463665
       - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
-      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
-    ports:
-      - "3006:3006"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      - auth-service
-    networks:
-      - rierco-network
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net,http://tire.rierco.net,http://lab.rierco.net,http://auth.rierco.net
 
   # ============================================
   # Materials Lab Backend
@@ -78,13 +67,14 @@ services:
       dockerfile: Dockerfile
     container_name: rierco-materials-backend
     restart: unless-stopped
+    network_mode: "host"
     environment:
-      - DB_HOST=host.docker.internal
+      - DB_HOST=localhost
       - DB_PORT=5432
       - DB_USER=tireLab
       - DB_PASSWORD=radikal4
       - DB_NAME=tire_laboratory
-      - MATERIALS_DB_HOST=host.docker.internal
+      - MATERIALS_DB_HOST=localhost
       - MATERIALS_DB_PORT=5432
       - MATERIALS_DB_USER=tireLab
       - MATERIALS_DB_PASSWORD=radikal4
@@ -95,15 +85,7 @@ services:
       - CLOUDINARY_CLOUD_NAME=dflapbzi9
       - CLOUDINARY_API_KEY=758797596463665
       - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
-      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
-    ports:
-      - "3002:3002"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      - auth-service
-    networks:
-      - rierco-network
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net,http://tire.rierco.net,http://lab.rierco.net,http://auth.rierco.net
 
   # ============================================
   # Tire Lab Backend
@@ -114,10 +96,11 @@ services:
       dockerfile: Dockerfile
     container_name: rierco-tire-backend
     restart: unless-stopped
+    network_mode: "host"
     environment:
       - NODE_ENV=production
       - PORT=5050
-      - PGHOST=host.docker.internal
+      - PGHOST=localhost
       - PGUSER=tireLab
       - PGPASSWORD=radikal4
       - PGDATABASE=tire_laboratory
@@ -126,18 +109,10 @@ services:
       - CLOUDINARY_CLOUD_NAME=dflapbzi9
       - CLOUDINARY_API_KEY=758797596463665
       - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
-      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net
-    ports:
-      - "5050:5050"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      - auth-service
-    networks:
-      - rierco-network
+      - ALLOWED_ORIGINS=https://tire.rierco.net,https://lab.rierco.net,https://auth.rierco.net,http://tire.rierco.net,http://lab.rierco.net,http://auth.rierco.net
 
   # ============================================
-  # Auth Frontend
+  # Auth Frontend (Port 3010)
   # ============================================
   auth-frontend:
     build:
@@ -149,13 +124,10 @@ services:
         - VITE_MATERIALS_LAB_URL=https://lab.rierco.net
     container_name: rierco-auth-frontend
     restart: unless-stopped
-    ports:
-      - "3010:80"
-    networks:
-      - rierco-network
+    network_mode: "host"
 
   # ============================================
-  # Materials Lab Frontend
+  # Materials Lab Frontend (Port 3011)
   # ============================================
   materials-frontend:
     build:
@@ -169,13 +141,10 @@ services:
         - VITE_CURRENT_SYSTEM=materials
     container_name: rierco-materials-frontend
     restart: unless-stopped
-    ports:
-      - "3011:80"
-    networks:
-      - rierco-network
+    network_mode: "host"
 
   # ============================================
-  # Tire Lab Frontend
+  # Tire Lab Frontend (Port 8080 - matches old production!)
   # ============================================
   tire-frontend:
     build:
@@ -189,11 +158,6 @@ services:
         - VITE_CURRENT_SYSTEM=tire
     container_name: rierco-tire-frontend
     restart: unless-stopped
-    ports:
-      - "3012:80"
-    networks:
-      - rierco-network
+    network_mode: "host"
 
-networks:
-  rierco-network:
-    driver: bridge
+# No custom networks needed with host mode!
