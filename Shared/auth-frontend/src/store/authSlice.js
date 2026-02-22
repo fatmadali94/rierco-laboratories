@@ -1,96 +1,96 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const AUTH_URL = `${import.meta.env.VITE_AUTH_URL}/auth`;
+const AUTH_URL = `${import.meta.env.VITE_AUTH_URL}`;
 
 // Login user
 export const loginUser = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await fetch(`${AUTH_URL}/signin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return rejectWithValue(data.message || 'خطا در ورود');
+        return rejectWithValue(data.message || "خطا در ورود");
       }
 
       // Store token
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       return data;
     } catch (error) {
-      return rejectWithValue('خطا در برقراری ارتباط با سرور');
+      return rejectWithValue("خطا در برقراری ارتباط با سرور");
     }
-  }
+  },
 );
 
 // Register user
 export const registerUser = createAsyncThunk(
-  'auth/register',
+  "auth/register",
   async (formData, { rejectWithValue }) => {
     try {
       const response = await fetch(`${AUTH_URL}/signup`, {
-        method: 'POST',
+        method: "POST",
         body: formData, // FormData for file upload
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        return rejectWithValue(data.message || 'خطا در ثبت نام');
+        return rejectWithValue(data.message || "خطا در ثبت نام");
       }
 
       return data;
     } catch (error) {
-      return rejectWithValue('خطا در برقراری ارتباط با سرور');
+      return rejectWithValue("خطا در برقراری ارتباط با سرور");
     }
-  }
+  },
 );
 
 // Verify existing token
 export const verifyExistingToken = createAsyncThunk(
-  'auth/verify',
+  "auth/verify",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (!token) {
-        return rejectWithValue('No token');
+        return rejectWithValue("No token");
       }
 
       const response = await fetch(`${AUTH_URL}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.valid) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        return rejectWithValue('Invalid token');
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        return rejectWithValue("Invalid token");
       }
 
       return { token, user: data.user };
     } catch (error) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      return rejectWithValue('Verification failed');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      return rejectWithValue("Verification failed");
     }
-  }
+  },
 );
 
 // Logout
-export const logoutUser = createAsyncThunk('auth/logout', async () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+export const logoutUser = createAsyncThunk("auth/logout", async () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
   return null;
 });
 
@@ -113,7 +113,7 @@ const parseJson = (s) => {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState: {
     token: null,
     user: null,
