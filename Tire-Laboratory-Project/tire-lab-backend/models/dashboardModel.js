@@ -1,9 +1,8 @@
-import pool from '../db.js';
+import pool from "../db.js";
 
-
-  // 1. Count of entry_codes based on date
-  export const getEntryCountsByDate = async (startDate, endDate) => {
-    const query = `
+// 1. Count of entry_codes based on date
+export const getEntryCountsByDate = async (startDate, endDate) => {
+  const query = `
       SELECT 
   ne_company_entry_date AS date,
   COUNT(entry_code) AS count
@@ -12,13 +11,13 @@ WHERE ne_company_entry_date BETWEEN $1 AND $2
 GROUP BY ne_company_entry_date
 ORDER BY ne_company_entry_date ASC
     `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows;
-  }
+  const result = await pool.query(query, [startDate, endDate]);
+  return result.rows;
+};
 
-  // 2. Sum of ne.number_of_rings based on date
-  export const getRingsSumByDate = async (startDate, endDate) => {
-    const query = `
+// 2. Sum of ne.number_of_rings based on date
+export const getRingsSumByDate = async (startDate, endDate) => {
+  const query = `
       SELECT 
         ne_company_entry_date as date,
         SUM(ne_number_of_rings) as total_rings
@@ -27,12 +26,12 @@ ORDER BY ne_company_entry_date ASC
       GROUP BY ne_company_entry_date
       ORDER BY ne_company_entry_date ASC
     `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows;
-  }
+  const result = await pool.query(query, [startDate, endDate]);
+  return result.rows;
+};
 
-  // 3. Count of entry_codes based on ne.size in a period of time
-  export const getEntryCountsTotalsBySize = async (startDate, endDate) => {
+// 3. Count of entry_codes based on ne.size in a period of time
+export const getEntryCountsTotalsBySize = async (startDate, endDate) => {
   const query = `
     SELECT 
       ne_size AS size,
@@ -46,10 +45,9 @@ ORDER BY ne_company_entry_date ASC
   return result.rows; // each row: { size: "205/55R16", total: 12 }
 };
 
-
-  // 4. Count of entry_codes based on ne.brand in a period of time
-  export const getEntryCountsByBrand = async (startDate, endDate) => {
-    const query = `
+// 4. Count of entry_codes based on ne.brand in a period of time
+export const getEntryCountsByBrand = async (startDate, endDate) => {
+  const query = `
       SELECT 
         ne_brand as brand,
         COUNT(entry_code) as count
@@ -58,13 +56,13 @@ ORDER BY ne_company_entry_date ASC
       GROUP BY  ne_brand
       ORDER BY  count DESC
     `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows;
-  }
+  const result = await pool.query(query, [startDate, endDate]);
+  return result.rows;
+};
 
-  // 5. Count of entry_codes based on rr.customers in a period of time
-  export const getEntryCountsByCustomer = async (startDate, endDate) => {
-    const query = `
+// 5. Count of entry_codes based on rr.customers in a period of time
+export const getEntryCountsByCustomer = async (startDate, endDate) => {
+  const query = `
       SELECT 
         rr_customers as customer,
         COUNT(entry_code) as count
@@ -73,10 +71,9 @@ ORDER BY ne_company_entry_date ASC
       GROUP BY rr_customers
       ORDER BY count DESC
     `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows;
-  }
-
+  const result = await pool.query(query, [startDate, endDate]);
+  return result.rows;
+};
 
 export const getTestsByDate = async (startDate, endDate) => {
   const query = `
@@ -90,15 +87,12 @@ export const getTestsByDate = async (startDate, endDate) => {
     ORDER BY rr_standard, total DESC
   `;
   const result = await pool.query(query, [startDate, endDate]);
-  return result.rows; 
+  return result.rows;
 };
 
-
-
-
-  // 7. Count of entry_codes based on lr.tire_type in a period of time
-  export const getEntryCountsByTireType = async (startDate, endDate) => {
-    const query = `
+// 7. Count of entry_codes based on lr.tire_type in a period of time
+export const getEntryCountsByTireType = async (startDate, endDate) => {
+  const query = `
       SELECT 
         lr_tire_type as tire_type,
         COUNT(entry_code) as total
@@ -107,13 +101,13 @@ export const getTestsByDate = async (startDate, endDate) => {
       GROUP BY lr_tire_type
       ORDER BY total DESC
     `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows;
-  }
+  const result = await pool.query(query, [startDate, endDate]);
+  return result.rows;
+};
 
-  // 8. Count of entry_codes based on lr.tire_group in a period of time
-  export const getEntryCountsByTireGroup = async (startDate, endDate) => {
-    const query = `
+// 8. Count of entry_codes based on lr.tire_group in a period of time
+export const getEntryCountsByTireGroup = async (startDate, endDate) => {
+  const query = `
       SELECT 
         lr_tire_group as tire_group,
         COUNT(entry_code) as total
@@ -122,13 +116,13 @@ export const getTestsByDate = async (startDate, endDate) => {
       GROUP BY lr_tire_group
       ORDER BY total DESC
     `;
-    const result = await pool.query(query, [startDate, endDate]);
-    return result.rows;
-  }
+  const result = await pool.query(query, [startDate, endDate]);
+  return result.rows;
+};
 
-  // 9. Entry_codes that lr.laboratory_confirmation is equal to yes or no
-  export const getLabConfirmationStatus = async () => {
-    const query = `
+// 9. Entry_codes that lr.laboratory_confirmation is equal to yes or no
+export const getLabConfirmationStatus = async () => {
+  const query = `
       SELECT 
         lr_laboratory_confirmation as confirmation_status,
         COUNT(entry_code) as count
@@ -137,12 +131,12 @@ export const getTestsByDate = async (startDate, endDate) => {
       GROUP BY lr_laboratory_confirmation
       ORDER BY confirmation_status
     `;
-    const result = await pool.query(query);
-    return result.rows;
-  }
+  const result = await pool.query(query);
+  return result.rows;
+};
 
-  // 10-18. Sum queries for depository records
-  export const getDepositorySumsTotal = async (startDate, endDate) => {
+// 10-18. Sum queries for depository records
+export const getDepositorySumsTotal = async (startDate, endDate) => {
   const query = `
     SELECT 
       COALESCE(SUM(dr_remained_a), 0) AS total_remained_a,
@@ -161,9 +155,8 @@ export const getTestsByDate = async (startDate, endDate) => {
   return result.rows[0]; // single totals row
 };
 
-
-  // 19. All columns for Excel export
-  export const getAllData = async (startDate, endDate) => {
+// 19. All columns for Excel export
+export const getAllData = async (startDate, endDate) => {
   const query = `
     SELECT  
     entry_code AS کد_ورودی,
@@ -202,7 +195,7 @@ export const getTestsByDate = async (startDate, endDate) => {
     lr_performed_tests AS تست_انجام_شده,
     lr_plunger_5 AS پلانجر,
     lr_rim_test AS آزمون_طوقه,
-    lr_rolling_result AS نتیجه_طوقه,
+    lr_rolling_result AS نتیجه_رولینگ,
     lr_rolling_grade AS گروه_رولینگ,
     lr_noise_result AS نتیجه_نویز,
     lr_wet_grip_grade AS گروه_چسبندگی,
@@ -216,13 +209,12 @@ export const getTestsByDate = async (startDate, endDate) => {
       CAST(SPLIT_PART(entry_code, '-', 1) AS INTEGER) DESC,
       CAST(SPLIT_PART(entry_code, '-', 2) AS INTEGER) DESC
   `;
-  const result = await pool.query(query, [startDate, endDate]); 
+  const result = await pool.query(query, [startDate, endDate]);
   return result.rows;
 };
 
-
-  // 19. Depo Data for Excel export
-  export const getDepositoryData = async (startDate, endDate) => {
+// 19. Depo Data for Excel export
+export const getDepositoryData = async (startDate, endDate) => {
   const query = `
     SELECT 
       entry_code AS کد_ورودی,
@@ -247,26 +239,22 @@ export const getTestsByDate = async (startDate, endDate) => {
       CAST(SPLIT_PART(entry_code, '-', 1) AS INTEGER) DESC,
       CAST(SPLIT_PART(entry_code, '-', 2) AS INTEGER) DESC
   `;
-  const result = await pool.query(query, [startDate, endDate]); 
+  const result = await pool.query(query, [startDate, endDate]);
   return result.rows;
 };
 
+// Additional helper method for date range validation
+export const validateDateRange = (startDate, endDate) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
 
-
-
-  // Additional helper method for date range validation
-  export const validateDateRange = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      throw new Error('Invalid date format');
-    }
-    
-    if (start > end) {
-      throw new Error('Start date cannot be after end date');
-    }
-    
-    return { startDate: start.toISOString(), endDate: end.toISOString() };
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    throw new Error("Invalid date format");
   }
 
+  if (start > end) {
+    throw new Error("Start date cannot be after end date");
+  }
+
+  return { startDate: start.toISOString(), endDate: end.toISOString() };
+};
