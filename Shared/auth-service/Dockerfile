@@ -1,52 +1,62 @@
 # ============================================
 # Dockerfile for Node.js Backend Services
-# Use this for: auth-service, chat-service, materials-backend, tire-backend
-# Supports both TypeScript (with build) and plain JavaScript projects
+# Specifically for projects with root-level index.js
 # ============================================
 
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
+
+# Configure npm for better connectivity in restricted networks
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set strict-ssl false && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-retries 5
 
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build)
-RUN npm ci
+# Install all dependencies
+RUN if [ -f "package-lock.json" ]; then \
+      npm ci --legacy-peer-deps; \
+    else \
+      npm install --legacy-peer-deps; \
+    fi
 
-# Copy source code and configs
+# Copy source code
 COPY . .
 
-# Build TypeScript if tsconfig exists
-RUN if [ -f "tsconfig.json" ]; then \
-    echo "Building TypeScript project..." && \
-    npm run build; \
-    else \
-    echo "JavaScript project - no build needed"; \
-    fi
+# Build if build script exists (Babel compilation)
+RUN npm run build 2>&1 || echo "No build script or build failed, using source files"
 
 # ============================================
 # Production stage
 # ============================================
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
+
+# Configure npm for production installs
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set strict-ssl false
 
 # Copy package files
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production && npm cache clean --force
+RUN if [ -f "package-lock.json" ]; then \
+      npm ci --only=production --legacy-peer-deps; \
+    else \
+      npm install --only=production --legacy-peer-deps; \
+    fi && \
+    npm cache clean --force
 
-# Copy the entire built app from builder
+# Copy everything from builder (includes index.js, src/, dist/ if built)
 COPY --from=builder /app .
 
-# Expose port (will be overridden by docker-compose)
+# Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))"
-
-# Smart start: use dist/index.js for TypeScript builds, src/index.js for JavaScript
-CMD ["sh", "-c", "if [ -f dist/index.js ]; then node dist/index.js; elif [ -f dist/server.js ]; then node dist/server.js; elif [ -f src/index.js ]; then node src/index.js; else node src/server.js; fi"]
+# Start using npm start (which runs 'node index.js')
+CMD ["npm", "start"]

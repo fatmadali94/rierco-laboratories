@@ -1,0 +1,162 @@
+version: '3.8'
+
+# ============================================
+# Docker Compose for Testing NEW Project
+# Uses HOST NETWORK MODE (same as old working project)
+# Connects to VPS PostgreSQL directly via localhost
+# ============================================
+
+services:
+  # ============================================
+  # Auth Service (Shared)
+  # ============================================
+  auth-service:
+    build:
+      context: ./Shared/auth-service
+      dockerfile: Dockerfile
+    container_name: rierco-auth-service-new
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_USER=tireLab
+      - DB_PASSWORD=radikal4
+      - DB_NAME=tire_laboratory
+      - PORT=4005
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=http://194.180.11.232:4010,http://194.180.11.232:4011,http://194.180.11.232:4012,http://localhost:4010,http://localhost:4011,http://localhost:4012
+
+  # ============================================
+  # Chat Service (Shared)
+  # ============================================
+  chat-service:
+    build:
+      context: ./Shared/chat-service
+      dockerfile: Dockerfile
+    container_name: rierco-chat-service-new
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_USER=tireLab
+      - DB_PASSWORD=radikal4
+      - DB_NAME=tire_laboratory
+      - PORT=4006
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=http://localhost:4005
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=http://194.180.11.232:4010,http://194.180.11.232:4011,http://194.180.11.232:4012,http://localhost:4010,http://localhost:4011,http://localhost:4012
+
+  # ============================================
+  # Materials Lab Backend
+  # ============================================
+  materials-backend:
+    build:
+      context: ./Materals-Parts-Laboratory-Project/materials-parts-lab-backend
+      dockerfile: Dockerfile
+    container_name: rierco-materials-backend-new
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_USER=tireLab
+      - DB_PASSWORD=radikal4
+      - DB_NAME=tire_laboratory
+      - MATERIALS_DB_HOST=localhost
+      - MATERIALS_DB_PORT=5432
+      - MATERIALS_DB_USER=tireLab
+      - MATERIALS_DB_PASSWORD=radikal4
+      - MATERIALS_DB_NAME=materials_parts_laboratory
+      - PORT=4002
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=http://194.180.11.232:4010,http://194.180.11.232:4011,http://194.180.11.232:4012,http://localhost:4010,http://localhost:4011,http://localhost:4012
+
+  # ============================================
+  # Tire Lab Backend
+  # ============================================
+  tire-backend:
+    build:
+      context: ./Tire-Laboratory-Project/tire-lab-backend
+      dockerfile: Dockerfile
+    container_name: rierco-tire-backend-new
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - NODE_ENV=production
+      - PORT=6050
+      - PGHOST=localhost
+      - PGUSER=tireLab
+      - PGPASSWORD=radikal4
+      - PGDATABASE=tire_laboratory
+      - PGPORT=5432
+      - JWT_SECRET=${JWT_SECRET}
+      - CLOUDINARY_CLOUD_NAME=dflapbzi9
+      - CLOUDINARY_API_KEY=758797596463665
+      - CLOUDINARY_API_SECRET=G1IeZ57LERrszCkgJ-u2w8WTdI8
+      - ALLOWED_ORIGINS=http://194.180.11.232:4010,http://194.180.11.232:4011,http://194.180.11.232:4012,http://localhost:4010,http://localhost:4011,http://localhost:4012
+
+  # ============================================
+  # Auth Frontend
+  # ============================================
+  auth-frontend:
+    build:
+      context: ./Shared/auth-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_AUTH_URL=http://194.180.11.232:4005
+        - VITE_TIRE_LAB_URL=http://194.180.11.232:4012
+        - VITE_MATERIALS_LAB_URL=http://194.180.11.232:4011
+    container_name: rierco-auth-frontend-new
+    restart: unless-stopped
+    network_mode: "host"
+
+  # ============================================
+  # Materials Lab Frontend
+  # ============================================
+  materials-frontend:
+    build:
+      context: ./Materals-Parts-Laboratory-Project/materials-parts-lab-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BASE_URL=http://194.180.11.232:4002/api
+        - VITE_AUTH_URL=http://194.180.11.232:4005
+        - VITE_AUTH_PORTAL_URL=http://194.180.11.232:4010
+        - VITE_CHAT_URL=http://194.180.11.232:4006
+        - VITE_CURRENT_SYSTEM=materials
+    container_name: rierco-materials-frontend-new
+    restart: unless-stopped
+    network_mode: "host"
+
+  # ============================================
+  # Tire Lab Frontend
+  # ============================================
+  tire-frontend:
+    build:
+      context: ./Tire-Laboratory-Project/tire-lab-frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_BASE_URL=http://194.180.11.232:6050/api
+        - VITE_AUTH_URL=http://194.180.11.232:4005
+        - VITE_AUTH_PORTAL_URL=http://194.180.11.232:4010
+        - VITE_CHAT_URL=http://194.180.11.232:4006
+        - VITE_CURRENT_SYSTEM=tire
+    container_name: rierco-tire-frontend-new
+    restart: unless-stopped
+    network_mode: "host"
+
+# No custom networks needed with host mode!

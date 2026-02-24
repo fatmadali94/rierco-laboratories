@@ -15,7 +15,7 @@ const roleAccess = {
 
 const ActionButtons = () => {
   const user = useSelector((state) => state.auth.user);
-  const userRole = user?.position?.toLowerCase();
+  const userRole = user?.position;
   const access = roleAccess[userRole] || [];
 
   return (
